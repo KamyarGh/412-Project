@@ -1,0 +1,984 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"train",
+				"train_data	statement"
+			],
+			[
+				"cat_t",
+				"cat_train_data	statement"
+			],
+			[
+				"num",
+				"num_points	statement"
+			],
+			[
+				"pa",
+				"path	module"
+			],
+			[
+				"data",
+				"data_dir	statement"
+			],
+			[
+				"dir",
+				"dir_entries	statement"
+			],
+			[
+				"enc",
+				"enc_inputs"
+			],
+			[
+				"dec_",
+				"dec_input_batch	statement"
+			],
+			[
+				"opt",
+				"options	statement"
+			],
+			[
+				"smaple",
+				"sampler_inputs	statement"
+			],
+			[
+				"sam",
+				"sampler_var	statement"
+			],
+			[
+				"sampl",
+				"sampler_mean	statement"
+			],
+			[
+				"sample",
+				"sample_mean	statement"
+			],
+			[
+				"sampler",
+				"sampler_inputs	statement"
+			],
+			[
+				"vae_",
+				"vae_input_batch"
+			],
+			[
+				"inp",
+				"inputs	forstmt"
+			],
+			[
+				"cost",
+				"cost_function	statement"
+			],
+			[
+				"in",
+				"input_dims"
+			],
+			[
+				"cupb",
+				"_cupboard"
+			],
+			[
+				"batch",
+				"batch_size"
+			],
+			[
+				"Dat",
+				"DataProvider	import"
+			],
+			[
+				"pars",
+				"parse_args	function"
+			],
+			[
+				"Ar",
+				"ArgumentParser	class"
+			],
+			[
+				"reduc",
+				"reduce_sum"
+			],
+			[
+				"enc_var",
+				"log_enc_var_sq"
+			],
+			[
+				"enc_me",
+				"enc_mean_sq	statement"
+			],
+			[
+				"log",
+				"log_enc_var_sq	statement"
+			],
+			[
+				"bui",
+				"build_decoder	function"
+			],
+			[
+				"build",
+				"build_encoder	function"
+			],
+			[
+				"input",
+				"input_var	param"
+			],
+			[
+				"lat",
+				"latent_dims	statement"
+			],
+			[
+				"laten",
+				"latent_dims"
+			],
+			[
+				"num_",
+				"num_data_points"
+			],
+			[
+				"ba",
+				"batch_size	statement"
+			],
+			[
+				"b",
+				"batch_idx	statement"
+			],
+			[
+				"save",
+				"save_file_name	statement"
+			],
+			[
+				"val_co",
+				"val_counter	statement"
+			],
+			[
+				"imre",
+				"imresize	function"
+			],
+			[
+				"f",
+				"f"
+			],
+			[
+				"not",
+				"notify	function"
+			],
+			[
+				"thr",
+				"threading	module"
+			],
+			[
+				"thre",
+				"threads	statement"
+			],
+			[
+				"lab",
+				"lab_win_prob"
+			],
+			[
+				"test",
+				"test_dict	param"
+			],
+			[
+				"trin",
+				"train_dict	param"
+			],
+			[
+				"n",
+				"n	param"
+			],
+			[
+				"tr",
+				"train_points	statement"
+			],
+			[
+				"test_",
+				"test_data"
+			],
+			[
+				"DATA",
+				"DATA_DIMS"
+			],
+			[
+				"del",
+				"delimiter	param"
+			],
+			[
+				"D",
+				"DATA_PATH	statement"
+			],
+			[
+				"KDT",
+				"KDTreePipeline	class"
+			],
+			[
+				"ind",
+				"indices"
+			],
+			[
+				"r",
+				"readline	function"
+			],
+			[
+				"L",
+				"LAB_PCD_PATH	statement"
+			],
+			[
+				"leaf",
+				"leaf_size	param"
+			],
+			[
+				"load",
+				"load_data	function"
+			],
+			[
+				"de",
+				"description	statement"
+			],
+			[
+				"train_",
+				"train_test_split	import"
+			],
+			[
+				"comp",
+				"compute_stats	function"
+			],
+			[
+				"N",
+				"None	keyword"
+			],
+			[
+				"mat",
+				"matrices	param"
+			],
+			[
+				"_comp",
+				"_compute_recall"
+			],
+			[
+				"_com",
+				"_compute_precision"
+			],
+			[
+				"compute",
+				"_compute_accuracy"
+			],
+			[
+				"if",
+				"ifmain	if __name__ == '__main__'"
+			],
+			[
+				"as",
+				"astype"
+			],
+			[
+				"wr",
+				"write	function"
+			],
+			[
+				"file",
+				"file_name	param"
+			],
+			[
+				"te",
+				"test_ME	statement"
+			],
+			[
+				"pred",
+				"pred_train	statement"
+			],
+			[
+				"logical",
+				"logical_xor	instance"
+			],
+			[
+				"ht",
+				"html_code_pat	statement"
+			],
+			[
+				"tag",
+				"tag_pat	statement"
+			],
+			[
+				"X_t",
+				"X_train	statement"
+			],
+			[
+				"x",
+				"X_train	statement"
+			],
+			[
+				"dense",
+				"dense_layer	statement"
+			],
+			[
+				"call",
+				"callbacks"
+			],
+			[
+				"choice",
+				"choices"
+			],
+			[
+				"add",
+				"add_node"
+			],
+			[
+				"spli",
+				"split_data	function"
+			],
+			[
+				"MIN",
+				"MIN"
+			],
+			[
+				"valid",
+				"validation_images	statement"
+			],
+			[
+				"valida",
+				"validation_labels	statement"
+			],
+			[
+				"with",
+				"without"
+			],
+			[
+				"random",
+				"randomText	statement"
+			],
+			[
+				"valid_logProb",
+				"valid_logProb3	statement"
+			],
+			[
+				"best",
+				"bestParams3	statement"
+			],
+			[
+				"max",
+				"maxLogProb"
+			],
+			[
+				"K",
+				"KMeans	function"
+			],
+			[
+				"Show",
+				"ShowMeans	function"
+			],
+			[
+				"rand",
+				"randConst	statement"
+			],
+			[
+				"svae",
+				"save"
+			],
+			[
+				"target",
+				"target_train"
+			],
+			[
+				"for",
+				"format	function"
+			],
+			[
+				"out",
+				"out_fptr	statement"
+			],
+			[
+				"np_am",
+				"np_amb_dir	statement"
+			],
+			[
+				"ran",
+				"randint"
+			],
+			[
+				"rn",
+				"randint"
+			],
+			[
+				"cal",
+				"cal_name"
+			],
+			[
+				"cm",
+				"cmd_argv"
+			],
+			[
+				"err",
+				"err_result"
+			],
+			[
+				"is",
+				"is_introduced"
+			],
+			[
+				"user",
+				"username"
+			],
+			[
+				"use",
+				"username"
+			],
+			[
+				"free",
+				"free_client"
+			],
+			[
+				"fd",
+				"fd"
+			],
+			[
+				"FD",
+				"FD_SET"
+			],
+			[
+				"re",
+				"retval"
+			],
+			[
+				"pe",
+				"perror"
+			],
+			[
+				"fdlist",
+				"fdlist_ptr"
+			],
+			[
+				"new",
+				"new_soc"
+			],
+			[
+				"ne",
+				"new_client"
+			],
+			[
+				"pee",
+				"peer_len"
+			],
+			[
+				"time",
+				"time_size"
+			],
+			[
+				"strn",
+				"strlen"
+			],
+			[
+				"blo",
+				"block_sleep"
+			],
+			[
+				"u",
+				"usr1_block_sig"
+			],
+			[
+				"siga",
+				"sigaddset"
+			],
+			[
+				"sa",
+				"sa_mask"
+			],
+			[
+				"gc",
+				"gc_action"
+			],
+			[
+				"makr",
+				"mark_and_sweep"
+			],
+			[
+				"ptr",
+				"ptr_1"
+			],
+			[
+				"ca",
+				"case_no"
+			],
+			[
+				"prt",
+				"printf	printf …"
+			],
+			[
+				"count",
+				"count_gc_chunks"
+			],
+			[
+				"w",
+				"write_to_file"
+			],
+			[
+				"me",
+				"mem_chunks_in_use"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 165.0,
+		"last_filter": "install",
+		"selected_items":
+		[
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"mini",
+				"View: Toggle Minimap"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"in",
+				"Package Control: Install Package"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"glue",
+				"Glue - Launch"
+			],
+			[
+				"intall",
+				"Package Control: Install Package"
+			],
+			[
+				"Snippet: ",
+				"Snippet: Lorem ipsum"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 431.0
+	},
+	"console":
+	{
+		"height": 242.0,
+		"history":
+		[
+			"print(\"hello\")",
+			"print \"hello\"",
+			"glue path",
+			"import urllib2,os,hashlib; h = '2deb499853c4371624f5a07e27c334aa' + 'bf8c4e67d14fb0525ba4f89698a6d7e1'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); os.makedirs( ipp ) if not os.path.exists(ipp) else None; urllib2.install_opener( urllib2.build_opener( urllib2.ProxyHandler()) ); by = urllib2.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); open( os.path.join( ipp, pf), 'wb' ).write(by) if dh == h else None; print('Error validating download (got %s instead of %s), please try manual install' % (dh, h) if dh != h else 'Please restart Sublime Text to finish installation')"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/Kamyar/courses/412/project"
+	],
+	"file_history":
+	[
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-wepjzc/train.py",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-pt31gl/train.py",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-juil1k/toolbox.py",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-sukhxg/data_provider.py",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-ki9apv/fc_layer.py",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-8xe69y/sequential.py",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-l13lkj/vanilla_vae.json",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-prky32/config.py",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-c8ulgw/vae.py",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-3z631j/train.py",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-bcnhjx/instance_test.py",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-w3xmgm/get_data_stats.py",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-wzdpa3/vae.py",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-cdg15b/test",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-mft8mz/.profile",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-3_s7ob/building_blocks.py",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-mvorxx/to",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-gn6fpu/test",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-3qkj3y/todo.md",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-65bx_4/test.md",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-uiavvm/toolbox.py",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-gwancs/vae.py",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-0o51aw/todo.md",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-69d8cr/sadf",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-mkdnma/test",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-yaysyp/test",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-_wtcok/test",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-u7fkeh/asdf",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-m1anqa/test",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-96q1o7/asdf",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-tpnxk4/asdf",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-dv8q2f/asdf",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-dplk1u/asdf",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-6mkkj_/.bashrc",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-04ks4q/.bashrc",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-8590u8/.bashr",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-v9vb8a/.bashrc",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-it3s3n/.bashrc",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-orrp7b/.bashrc",
+		"/var/folders/z5/yfnb9x5j747_0g3hwpsljv480000gn/T/rsub-mcgkr6/.bashrc",
+		"/Users/Kamyar/courses/412/project/learn.lua",
+		"/Users/Kamyar/Poly-RNN/run_train.sh",
+		"/Users/Kamyar/Poly-RNN/model.py",
+		"/Users/Kamyar/Poly-RNN/coco.py",
+		"/Users/Kamyar/Poly-RNN/experiments/baseline.json",
+		"/Users/Kamyar/Poly-RNN/config.py",
+		"/Users/Kamyar/Poly-RNN/gen_dataset.py",
+		"/Users/Kamyar/Poly-RNN/gen_dataset_alternative.py",
+		"/Users/Kamyar/courses/412/a2/mrf_question.m",
+		"/Users/Kamyar/courses/412/a2/weightedAdjacency.m",
+		"/Users/Kamyar/courses/412/a2/untitled.matlab",
+		"/Users/Kamyar/courses/412/a2/unnormProb.m",
+		"/Users/Kamyar/courses/412/a2/suffStats.m",
+		"/Users/Kamyar/courses/412/a2/old_isingLlik.m",
+		"/Users/Kamyar/courses/412/a2/margProb.m",
+		"/Users/Kamyar/courses/412/a2/isingLlik.m",
+		"/Users/Kamyar/courses/412/a2/entropy.m",
+		"/Users/Kamyar/courses/412/a2/is_connected.m",
+		"/Users/Kamyar/courses/412/a2/getAdjacency.m",
+		"/Users/Kamyar/courses/412/a2/evalAndGrad.m",
+		"/Users/Kamyar/RGBD/code/kmeans_seg.m",
+		"/Users/Kamyar/RGBD/code/narf/narf_extraction.cpp",
+		"/Users/Kamyar/RGBD/code/fpfh/fpfh_feature_extraction.cpp",
+		"/Users/Kamyar/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/Users/Kamyar/RGBD/code/cats.txt",
+		"/Users/Kamyar/RGBD/code/toolbox.py",
+		"/Users/Kamyar/RGBD/code/kdtree_pipe.py",
+		"/Users/Kamyar/RGBD/code/README.md",
+		"/Users/Kamyar/RGBD/code/pipeline.py",
+		"/Users/Kamyar/RGBD/code/CMakeLists.txt",
+		"/Users/Kamyar/RGBD/code/visu/visualization.cpp",
+		"/Users/Kamyar/RGBD/code/nyu2pcl.m",
+		"/Users/Kamyar/RGBD/code/toolbox/rgb_plane2rgb_world.m",
+		"/Users/Kamyar/RGBD/code/visu/1.pcd",
+		"/Users/Kamyar/RGBD/code/visualization.cpp",
+		"/Users/Kamyar/RGBD/code/visu/CMakeLists.txt",
+		"/Users/Kamyar/RGBD/code/fpfh/CMakeLists.txt",
+		"/Users/Kamyar/RGBD/code/fpfh__feature_extraction.cpp",
+		"/Users/Kamyar/RGBD/code/fpfh_extraction.cpp",
+		"/Users/Kamyar/RGBD/code/fpfh.cpp",
+		"/Users/Kamyar/RGBD/code/narf_feature_extraction.cpp",
+		"/Users/Kamyar/RGBD/code/gen_colors.m",
+		"/Users/Kamyar/CSC401/A1/submit_folder/3.4output.txt",
+		"/Users/Kamyar/CSC401/A1/submit_folder/ID",
+		"/Users/Kamyar/CSC401/A1/ID",
+		"/Users/Kamyar/CSC401/A1/3.2output.txt",
+		"/Users/Kamyar/CSC401/A1/submit_folder/3.2output.txt",
+		"/Users/Kamyar/CSC401/A1/buildarff.py",
+		"/Users/Kamyar/CSC401/A1/twtt.py",
+		"/Users/Kamyar/CSC401/A1/3.4output.txt",
+		"/Users/Kamyar/CSC401/A1/submit_folder/3.3output.txt",
+		"/Users/Kamyar/CSC401/A1/3.3output.txt",
+		"/Users/Kamyar/CSC401/A1/WEKA/infogain.sh",
+		"/Users/Kamyar/CSC401/A1/log_plus_1_train2.arff",
+		"/Users/Kamyar/CSC401/A1/standardize_train2.arff",
+		"/Users/Kamyar/CSC401/A1/binarize_train2.arff",
+		"/Users/Kamyar/CSC401/A1/3.1output.txt",
+		"/Users/Kamyar/CSC401/A1/log_plus_1train2.arff",
+		"/Users/Kamyar/CSC401/A1/train2.arff",
+		"/Users/Kamyar/CSC401/A1/train.arff",
+		"/Users/Kamyar/CSC401/A1/pp.py",
+		"/Users/Kamyar/369/g4kamyar/A1/interceptor.c",
+		"/Users/Kamyar/courses/412/a1/log_regression.py",
+		"/Users/Kamyar/CSC411-A3/code/public_test_predictions.csv",
+		"/Users/Kamyar/CSC411-A3/code/em_cnn3.py",
+		"/Users/Kamyar/Desktop/public_test_predictions.csv",
+		"/Users/Kamyar/CSC411-A3/code/cnn_graph",
+		"/Users/Kamyar/Documents/caffe-master/Makefile.config",
+		"/Users/Kamyar/courses/420/a5/track_objects.m",
+		"/Users/Kamyar/courses/420/a5/showboxes.m",
+		"/Users/Kamyar/courses/420/a5/put_boxes.m",
+		"/Users/Kamyar/courses/420/a5/make_video.m",
+		"/Users/Kamyar/courses/420/a5/load_imgs.m",
+		"/Users/Kamyar/courses/420/a5/tracking.mpeg.avi",
+		"/Users/Kamyar/CSC411-A3/code/kamyar_sandbox.py",
+		"/Users/Kamyar/CSC411-A3/code/toolbox.py",
+		"/Users/Kamyar/CSC411-A3/code/main.py",
+		"/Users/Kamyar/courses/420/a4/art.m",
+		"/Users/Kamyar/courses/420/a4/globals.m",
+		"/Users/Kamyar/courses/411/a2/MoG_py/mogEM.py",
+		"/Users/Kamyar/courses/411/a2/MoG_py/kmeans.py",
+		"/Users/Kamyar/courses/411/a2/NN_py/nn.py",
+		"/Users/Kamyar/courses/411/a2/NN_py/val_knn.py",
+		"/Users/Kamyar/courses/411/a2/MoG_py/util.py",
+		"/Users/Kamyar/courses/411/a2/NN_py/utils.py",
+		"/Users/Kamyar/courses/411/a2/NN_py/util.py",
+		"/Users/Kamyar/courses/411/a2/NN_py/run_knn.py",
+		"/Users/Kamyar/courses/411/a2/NN_py/l2_distance.py"
+	],
+	"find":
+	{
+		"height": 70.0
+	},
+	"find_in_files":
+	{
+		"height": 158.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"process",
+			"s2",
+			"s1",
+			"sample",
+			"n_samples",
+			"last_lo",
+			"floatX",
+			"config",
+			"self",
+			"batch_idx",
+			"fn",
+			"cost",
+			"experiment",
+			"w",
+			"ex",
+			"cost",
+			"cost_func",
+			"cost_function",
+			"model",
+			"cost_function",
+			"train_pro",
+			"usage",
+			"t_img",
+			"cost_function",
+			"model",
+			"cost_function",
+			"ent",
+			"label",
+			"            \n",
+			"s ",
+			"print",
+			"\",\"",
+			",6",
+			"early",
+			",3",
+			",6",
+			",3",
+			",7",
+			"load",
+			",6",
+			"train_preds",
+			"score",
+			"print",
+			"tick",
+			"xtick",
+			"tick",
+			"legend",
+			"moglogprob",
+			"loaddata",
+			"moglogprob",
+			"bottom",
+			"eps",
+			"trainnn",
+			"displayErrorplot",
+			"displayError",
+			"displayErr",
+			"evaluate",
+			"loss_func",
+			"displayerrorplot",
+			"displayerror",
+			"trainnn",
+			"evaluate",
+			"saveModel",
+			"displayerrorplot",
+			"print",
+			"ul-dates",
+			"stanford",
+			"personal-img",
+			"personal",
+			"sidebar",
+			"get_line",
+			"get_Line",
+			"get_",
+			"memmove",
+			"printf",
+			"\">",
+			"incorrect syntax",
+			"Command not recognized",
+			"error",
+			"sockaddr",
+			"max",
+			"broadc",
+			"return",
+			"reuturn",
+			"make_er",
+			"calendar_list_ptr",
+			"calendar_list",
+			"update_fdlist",
+			"perror",
+			"error",
+			"$perror$",
+			"$error$",
+			"error",
+			"listenf",
+			"listenfd",
+			"list_size += strlen",
+			"Event *cur",
+			"User *curren",
+			"strnlen",
+			"list_users",
+			"gc_malloc",
+			"mark",
+			"create_link",
+			"create_node",
+			"malloc",
+			"printf",
+			"print",
+			"create",
+			"gc_malloc",
+			"ptr",
+			"tostring",
+			"malloc",
+			"total_mem",
+			"file",
+			"FILE",
+			"malloc",
+			"root",
+			"malloc",
+			"mark_list",
+			"perror",
+			"gc_malloc",
+			"mem_chunk",
+			"malloc"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			",0"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 25.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 255.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "Anaconda Python Builder",
+	"project": "412-project.sublime-project",
+	"replace":
+	{
+		"height": 46.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"glue",
+				"NN_py/terminal.glue"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"~/Poly-RNN/poly-rnn.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 87.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 392.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 159.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
