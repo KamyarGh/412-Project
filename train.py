@@ -12,6 +12,7 @@ import argparse
 import utils
 import os
 from evaluate import save_samples
+from numpy.random import multivariate_normal as MVN, uniform
 
 def train(options):
     # Get logger
@@ -33,7 +34,7 @@ def train(options):
     	num_data_points,
     	options['batch_size'],
     	toolbox.ImageLoader(
-            os.path.join(options['data_dir'], 'train'),
+            data_dir = os.path.join(options['data_dir'], 'train'),
             flat=True
         )
     )
@@ -41,7 +42,7 @@ def train(options):
     # Valid provider
     num_data_points = len(
         os.listdir(
-            os.path.join(options['data_dir'], 'train')
+            os.path.join(options['data_dir'], 'val')
         )
     )
     num_data_points -= 2
@@ -50,7 +51,7 @@ def train(options):
     	num_data_points,
         options['batch_size'],
         toolbox.ImageLoader(
-        	path = os.path.join(options['data_dir'], 'valid'),
+        	data_dir = os.path.join(options['data_dir'], 'val'),
         	flat = True
         )
     )
@@ -62,7 +63,7 @@ def train(options):
         model = cupboard(options['model'])(
         	options['p_layers'],
         	options['q_layers'],
-        	options['input_dims'],
+        	np.prod(options['img_shape']),
         	options['latent_dims'],
         	'vanilla_vae'
         )
@@ -138,16 +139,41 @@ def train(options):
                 batch_abs_idx += 1
                 batch_rel_idx += 1
 
-                cost = sess.run(
-                    train_step,
+                result = sess.run(
+                    (cost_function, train_step, model.enc_std, model.enc_mean, model.encoder, model.dec_std, model.decoder, model.rec_loss, model.DKL, model.d1, model.d2, model.d3),
+                    #       0           1               2           3               4               5               6           7           8       9           10
                     feed_dict = {
                         model_input_batch: inputs
                     }
                 )
 
+                cost = result[0]
+                # print(model._encoder.layers[0].weights['w'].eval())
+                # print(result[2])
+                # print(result[3])
+
+                # print(result[3])
+                # print(result[2])
+                # print(result[-2])
+                # print(result[-1])
+
                 # Check cost
                 if np.isnan(cost) or np.isinf(cost):
                     log.info('NaN detected')
+                    for i in range(len(result)):
+                        print("\n\nresult[%d]:" % i)
+                        try:
+                            print(np.any(np.isnan(result[i])))
+                        except:
+                            pass
+                        print(result[i])
+                    print(result[3].shape)
+                    print(model._encoder.layers[0].weights['w'].eval())
+                    print('\n\nAny:')
+                    print(np.any(np.isnan(result[8])))
+                    print(np.any(np.isnan(result[9])))
+                    print(np.any(np.isnan(result[10])))
+                    print(inputs)
                     return 1., 1., 1.
 
                 # Update last losses
@@ -196,8 +222,13 @@ def train(options):
 
                     val_samples = sess.run(
                         sampler,
-                        free_dict = {
-                            sampler_input_batch: val_batch
+                        feed_dict = {
+                            sampler_input_batch: uniform(
+                                size = [
+                                    options['batch_size'],
+                                    options['latent_dims']
+                                ]
+                            )
                         }
                     )
 
@@ -205,6 +236,8 @@ def train(options):
                         val_samples,
                         int(batch_abs_idx/options['freq_validation']),
                         os.path.join(options['model_dir'], 'valid_samples'),
+                        True,
+                        options['img_shape'],
                         10
                     )
 

@@ -7,7 +7,7 @@ class DataProvider(object):
 		super(DataProvider, self).__init__()
 
 		self.num_data_points = num_data_points
-		self.order = range(num_data)
+		self.order = range(num_data_points)
 		self.batch_size = batch_size
 		self.batch_idx = 0
 		self.load_fn = load_fn
@@ -21,12 +21,12 @@ class DataProvider(object):
 
 	def reset(self):
 		self.batch_idx = -1
-		self.order = shuffle(self.order)
+		shuffle(self.order)
 
 
 	def next(self):
 		self.batch_idx += 1
-		if self.batch_idx == np.ceil(self.data[0]/self.batch_size):
+		if self.batch_idx == np.floor(self.num_data_points/self.batch_size):
 			self.reset()
 			raise StopIteration
 

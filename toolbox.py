@@ -1,6 +1,8 @@
 import numpy as np
 import tensorflow as tf
 from scipy.misc import imread
+from zoo.vae import VAE
+import os
 
 layers_dir = './layers/'
 
@@ -11,16 +13,13 @@ fn_dict = {
 
 # format:	(folder, file, name)
 _cupboard = {
-	'vanilla_vae': ('zoo', 'vae', 'VAE')
+	'vanilla_vae': VAE
 }
 
 def cupboard(name):
-	assert name in _cupboard,
-		'Object of interest was not found!'
+	assert name in _cupboard, 'Object of interest was not found!'
 		
-	temp = _cupboard[name]
-	eval('from %s.%s import %s' % (temp[0], temp[1], temp[2]))
-	eval('return %s' % temp[2])
+	return _cupboard[name]
 
 
 def name2fn(activation):
@@ -28,14 +27,28 @@ def name2fn(activation):
 
 
 class ImageLoader(object):
-	def __init__(self, path, flat=True):
+	def __init__(self, data_dir, flat=True):
 		self.flat = flat
-		self.path = path
+		self.data_dir = data_dir
 
 	def __call__(self, ids):
 		if self.flat:
-			data = np.array([imread(data_dir + '%d.png'%ID).flatten() for ID in ids])
+			data = np.array(
+				[
+					np.load(
+						os.path.join(self.data_dir, '%d.npy'%ID)
+					).flatten()
+					for ID in ids
+				]
+			)
 		else:
-			data = np.array([imread(data_dir + '%d.png'%ID) for ID in ids])
+			data = np.array(
+				[
+					np.load(
+						os.path.join(self.data_dir + '%d.npy'%ID)
+					)
+					for ID in ids
+				]
+			)
 
 		return data

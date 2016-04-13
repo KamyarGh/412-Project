@@ -15,11 +15,11 @@ class Sequential(object):
 
 	def __add__(self, layer):
 		self.layers.append(layer)
+		return self
 
 
 	def __call__(self, input_var):
-		assert len(self.layers) > 0,
-			'Enconder has no layers!'
+		assert len(self.layers) > 0, 'Enconder has no layers!'
 
 		self.model = self.layers[0](input_var)
 		for i in xrange(1, len(self.layers)):
