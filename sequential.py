@@ -15,6 +15,7 @@ class Sequential(object):
 
 	def __add__(self, layer):
 		self.layers.append(layer)
+		print('Adding {} to {} ...'.format(layer, self.name))
 		return self
 
 

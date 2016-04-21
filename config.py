@@ -33,6 +33,8 @@ def load_config(json_path):
         if create_dir == 'y':
             os.makedirs(options['model_dir'])
             os.makedirs(os.path.join(options['model_dir'], 'valid_samples'))
+            os.makedirs(os.path.join(options['model_dir'], 'input_sanity'))
+            os.makedirs(os.path.join(options['model_dir'], 'rec_sanity'))
         else:
             exit()
 

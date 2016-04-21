@@ -9,7 +9,7 @@ def new_process(func):
 		Process(target=func, args=(args)).start()
 	return wrapper
 
-@new_process
+# @new_process
 def save_samples(samples, index, save_dir, flat_samples=True, img_shape=None, num_to_save=10):
 	for i in range(min(num_to_save, samples.shape[0])):
 		imsave(

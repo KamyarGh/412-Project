@@ -11,7 +11,7 @@ import tensorflow as tf
 # ------------------------------------------------------------------------------
 
 
-def uniform_weights(input_dim, output_dim, scale=0.1, name=None):
+def uniform_weights(input_dim, output_dim, scale=0.01, name=None):
         """
         Uniform/Orthogonal initialization [-scale, scale].
         """
@@ -57,6 +57,7 @@ class FullyConnected(object):
             input_dim,
             output_dim,
             activation=None,
+            scale=0.01,
             name=''
     ):
         """
@@ -67,6 +68,7 @@ class FullyConnected(object):
         self.output_dim = output_dim
         self.activation = activation
         self.weights = {}
+        self.scale = scale
         self.build()
 
     def build(self):
@@ -76,6 +78,7 @@ class FullyConnected(object):
         self.weights['w'] = uniform_weights(
             self.input_dim,
             self.output_dim,
+            scale = self.scale,
             name='{}_w'.format(self.name)
         )
         self.weights['b'] = zeros(

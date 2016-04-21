@@ -140,14 +140,33 @@ def train(options):
                 batch_rel_idx += 1
 
                 result = sess.run(
-                    (cost_function, train_step, model.enc_std, model.enc_mean, model.encoder, model.dec_std, model.decoder, model.rec_loss, model.DKL, model.d1, model.d2, model.d3),
-                    #       0           1               2           3               4               5               6           7           8       9           10
+                    # (cost_function, train_step, model.enc_std, model.enc_mean, model.encoder, model.dec_std, model.dec_mean, model.decoder, model.rec_loss, model.DKL, model.d1, model.d2, model.d3),
+                    #       0           1               2           3               4               5               6              7               8            9           10
+                    (cost_function, train_step, model.DKL, model.rec_loss, model.dec_mean),
                     feed_dict = {
                         model_input_batch: inputs
                     }
                 )
 
                 cost = result[0]
+
+                if np.mean(result[-2]) > -1.0:
+                    return
+
+                # print('\n\nENC_MEAN:')
+                # print(result[3])
+                # print('\n\nENC_STD:')
+                # print(result[2])
+                # print('\nDEC_MEAN:')
+                # print(result[6])
+                # print('\nDEC_STD:')
+                # print(result[5])
+
+                # print('\n\nENCODER WEIGHTS:')
+                # print(model._encoder.layers[0].weights['w'].eval())
+                # print('\n\DECODER WEIGHTS:')
+                # print(model._decoder.layers[0].weights['w'].eval())
+
                 # print(model._encoder.layers[0].weights['w'].eval())
                 # print(result[2])
                 # print(result[3])
@@ -189,6 +208,8 @@ def train(options):
                         float(cost),
                         np.mean(last_losses)
                     ))
+                    log.info('Batch Mean Reconstruction Loss: {:0>15.4f}'.format(np.mean(result[3], axis=0)))
+                    log.info('Batch Mean DKL: {:0>15.4f}'.format(np.mean(result[2], axis=0)))
 
                 # Save model
                 if np.mod(batch_abs_idx, options['freq_saving']) == 0:
@@ -223,11 +244,10 @@ def train(options):
                     val_samples = sess.run(
                         sampler,
                         feed_dict = {
-                            sampler_input_batch: uniform(
-                                size = [
-                                    options['batch_size'],
-                                    options['latent_dims']
-                                ]
+                            sampler_input_batch: MVN(
+                                np.zeros(options['latent_dims']),
+                                np.diag(np.ones(options['latent_dims'])),
+                                size = options['batch_size']
                             )
                         }
                     )
@@ -239,6 +259,24 @@ def train(options):
                         True,
                         options['img_shape'],
                         10
+                    )
+
+                    save_samples(
+                        inputs,
+                        int(batch_abs_idx/options['freq_validation']),
+                        os.path.join(options['model_dir'], 'input_sanity'),
+                        True,
+                        options['img_shape'],
+                        options['batch_size']
+                    )
+
+                    save_samples(
+                        result[-1],
+                        int(batch_abs_idx/options['freq_validation']),
+                        os.path.join(options['model_dir'], 'rec_sanity'),
+                        True,
+                        options['img_shape'],
+                        options['batch_size']
                     )
 
 
