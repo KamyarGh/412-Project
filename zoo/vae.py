@@ -174,12 +174,7 @@ class VAE(object):
 		# )
 
 		# -------------------------- Reconstruction Loss --------------------------
-		inv_dec_std_sq = tf.exp(
-			tf.sub(
-				0.0,
-				self.dec_log_std_sq
-			)
-		)
+		inv_dec_std_sq = tf.exp( -self.dec_log_std_sq )
 
 		self.rec_loss = tf.mul(
 			-0.5,
@@ -256,19 +251,19 @@ class VAE(object):
 			)
 		)
 
-		decay = tf.mul(
-			float(self.decay_weight),
-			tf.reduce_sum(
-				tf.square(
-					self._decoder.layers[0].weights['w']
-				)
-			)
-		)
+		# decay = tf.mul(
+		# 	float(self.decay_weight),
+		# 	tf.reduce_sum(
+		# 		tf.square(
+		# 			self._decoder.layers[0].weights['w']
+		# 		)
+		# 	)
+		# )
 
-		self.cost = tf.add(
-			self.cost,
-			decay
-		)
+		# self.cost = tf.add(
+		# 	self.cost,
+		# 	decay
+		# )
 
 		return self.cost
 

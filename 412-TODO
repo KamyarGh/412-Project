@@ -1,0 +1,70 @@
+Vanilla VAE: (Thursday)
+	- FC VAE
+	- Convolutional VAE
+
+New Method:
+	- Using Autoencoder (Thursday)
+	- Using Classifier Features (for CIFAR) (Thursday)
+	- Experimenting with features of which level give best results (Friday)
+
+Evaluations:
+	* Visualizations (Friday)
+		- Vanilla
+		- Vanilla Conv
+		- New method AE
+		- New method classifier
+		- Visual Algebra
+	* k-NN: (Saturday)
+		- In code space of a denoising AE
+		- In pixel space
+	* Parzen Replacer: (Saturday)
+		- Distance of generation from closest train
+		- Distance of train from closest generation
+	* Semi-Supervised Learning (CIFAR): (Friday)
+		- How good are the representations for classification amongst different methods
+
+Write the Report: (Tuesday, Wednesday)
+
+---------------------------------------------------------------------------
+PLAN:
+
+Thursday:
+~~~~~~~~~
+Vanilla VAE: (Thursday)
+	- FC VAE
+	- Convolutional VAE
+
+New Method:
+	- Using Autoencoder (Thursday)
+	- Using Classifier Features (for CIFAR) (Thursday)
+
+
+Friday:
+~~~~~~~
+New Method:
+	- Experimenting with features of which level give best results (Friday)
+
+Evaluations:
+	* Semi-Supervised Learning (CIFAR): (Friday)
+		- How good are the representations for classification amongst different methods
+	* Visualizations (Friday)
+		- Vanilla
+		- Vanilla Conv
+		- New method AE
+		- New method classifier
+		- Visual Algebra
+
+
+Saturday:
+~~~~~~~~~
+	* k-NN: (Saturday)
+		- In code space of a denoising AE
+		- In pixel space
+	* Parzen Replacer: (Saturday)
+		- Distance of generation from closest train
+		- Distance of train from closest generation
+
+
+Tuesday & Wednesday:
+~~~~~~~~~~~~~~~~~~~~
+Write the Report: (Tuesday, Wednesday)
