@@ -1,18 +1,19 @@
 {
   "batch_size": 128,
   "freq_logging": 1,
-  "freq_saving": 100,
-  "freq_validation": 10,
+  "freq_saving": 10,
+  "freq_validation": 50,
   "img_shape": [48, 48],
   "latent_dims": 400,
-  "p_layers": [2000, 2000],
-  "q_layers": [2000, 2000],
-  "lr": 0.01,
+  "p_layers": [1024],
+  "q_layers": [1024],
+  "lr": 0.001,
   "model": "vanilla_vae",
-  "model_dir": "~/models/work_vanilla_vae",
+  "model_dir": "./models/working_final_vanilla_vae",
+  "dashboard_dir": "/u/kamyar/public_html/results/small_vanilla_vae",
   "data_dir": "./TFD",
   "n_epochs": 50,
   "random_seed": 12345,
   "reload": false,
-  "valid_batches": 100
+  "valid_batches": 10
 }

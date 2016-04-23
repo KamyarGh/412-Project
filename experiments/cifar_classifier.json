@@ -1,0 +1,33 @@
+{
+  "batch_size": 128,
+  "freq_logging": 1,
+  "freq_saving": 100,
+  "freq_validation": 10,
+  "img_shape": [32, 32],
+  "input_channels": 3,
+  "num_classes": 10,
+  "conv_params": {
+    "n_filters": [32, 16, 8],
+    "kernels": [
+      [4, 4],
+      [3, 3],
+      [2, 2]
+    ],
+    "strides": [
+      [2, 2],
+      [2, 2],
+      [2, 2]
+    ]
+    },
+  "fc_params": {
+    "dims": [128]
+    },
+  "lr": 0.01,
+  "model": "cnn_classifier",
+  "model_dir": "~/models/cifar_classifier",
+  "data_dir": "./CIFAR_10",
+  "n_epochs": 50,
+  "random_seed": 12345,
+  "reload": false,
+  "valid_batches": 10
+}

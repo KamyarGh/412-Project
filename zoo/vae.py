@@ -7,7 +7,7 @@ eps = 0.0
 
 coder_act_fn = tf.nn.tanh
 mean_std_act_fn = None
-dec_mean_act_fn = tf.nn.sigmoid
+dec_mean_act_fn = None
 
 class VAE(object):
 	""" << docstring for VAE >>
@@ -26,13 +26,6 @@ class VAE(object):
 
 		self.input_dims = input_dims
 		self.latent_dims = latent_dims
-
-		self.decay_weight = 100.0
-		
-		# assert self.q_layers[-1] == self.latent_dims,
-		# 		'Encoder output does not match latent dimensions!'
-		# assert self.p_layers[-1] == self.input_dims,
-		# 		'Decoder output does not match input dimensions!'
 
 		self.built = False
 		self.name = name
@@ -62,10 +55,10 @@ class VAE(object):
 
 		self.decoder = self._decoder(input_var)
 
-		self.dec_mean = FullyConnected(self.p_layers[-1], self.input_dims, dec_mean_act_fn, name='dec_mean')
-		self.dec_mean = self.dec_mean(self.decoder)
-		self.dec_log_std_sq = FullyConnected(self.p_layers[-1], self.input_dims, mean_std_act_fn, name='dec_std')
-		self.dec_log_std_sq = self.dec_log_std_sq(self.decoder)
+		self._dec_mean = FullyConnected(self.p_layers[-1], self.input_dims, dec_mean_act_fn, name='dec_mean')
+		self.dec_mean = self._dec_mean(self.decoder)
+		self._dec_log_std_sq = FullyConnected(self.p_layers[-1], self.input_dims, mean_std_act_fn, name='dec_std')
+		self.dec_log_std_sq = self._dec_log_std_sq(self.decoder)
 
 
 	def __call__(self, input_batch):
@@ -96,19 +89,6 @@ class VAE(object):
 
 		self.built = True
 
-		# self.build_decoder(
-		# 	tf.add(
-		# 		tf.mul(
-		# 			tf.random_normal(
-		# 				[self.n_samples, self.latent_dims]
-		# 			),
-		# 			self.enc_std
-		# 		),
-		# 		self.enc_mean
-		# 	)
-		# )
-		# self.built = True
-
 		# -------------------------- KL part of loss --------------------------
 		enc_std_sq = tf.exp(
 			self.enc_log_std_sq
@@ -136,42 +116,6 @@ class VAE(object):
 			self.DKL,
 			1
 		)
-
-		# # Square
-		# enc_std_sq = tf.square(self.enc_std)
-		# log_enc_std_sq = tf.log(
-		# 	tf.add(
-		# 		eps,
-		# 		enc_std_sq
-		# 	)
-		# )
-		# enc_mean_sq = tf.square(self.enc_mean)
-
-		# # Reduce
-		# enc_std_sq = tf.reduce_sum(enc_std_sq, 1)
-		# enc_mean_sq = tf.reduce_sum(enc_mean_sq, 1)
-
-		# log_plus_one = tf.add(
-		# 	1.0,
-		# 	log_enc_std_sq
-		# )
-
-		# log_plus_one = tf.reduce_sum(log_plus_one, 1)
-		# log_enc_std_sq = tf.reduce_sum(log_enc_std_sq, 1)
-
-		# # DKL
-		# DKL = tf.sub(
-		# 	log_plus_one,
-		# 	tf.add(
-		# 		enc_mean_sq,
-		# 		log_enc_std_sq
-		# 	)
-		# )
-
-		# self.DKL = tf.mul(
-		# 	0.5,
-		# 	DKL
-		# )
 
 		# -------------------------- Reconstruction Loss --------------------------
 		inv_dec_std_sq = tf.exp( -self.dec_log_std_sq )
@@ -205,39 +149,6 @@ class VAE(object):
 			)
 		)
 
-		# self.rec_loss = tf.mul(
-		# 	-1.0,
-		# 	tf.square(
-		# 		tf.sub(
-		# 			input_batch,
-		# 			self.dec_mean
-		# 		)
-		# 	)
-		# )
-
-		# self.d1 = self.rec_loss
-
-		# self.rec_loss = tf.mul(
-		# 	self.rec_loss,
-		# 	tf.square(
-		# 		tf.inv(
-		# 			tf.add(
-		# 				eps,
-		# 				self.dec_std
-		# 			)
-		# 		)
-		# 	)
-		# )
-
-		# self.d2 = self.rec_loss
-
-		# self.rec_loss = tf.reduce_sum(
-		# 	self.rec_loss,
-		# 	1
-		# )
-
-		# self.d3 = self.rec_loss
-
 		# -------------------------- Put the Two Parts of the Loss Together --------------------------
 		print(self.DKL.get_shape())
 		print(self.rec_loss.get_shape())
@@ -251,62 +162,27 @@ class VAE(object):
 			)
 		)
 
-		# decay = tf.mul(
-		# 	float(self.decay_weight),
-		# 	tf.reduce_sum(
-		# 		tf.square(
-		# 			self._decoder.layers[0].weights['w']
-		# 		)
-		# 	)
-		# )
+		self.decay = 0.0
+		for layer in (self._encoder.layers + self._decoder.layers):
+			self.decay += tf.reduce_sum(
+				tf.square(
+					tf.pow(
+						layer.weights['w'],
+						2
+					)
+				)
+			)
 
-		# self.cost = tf.add(
-		# 	self.cost,
-		# 	decay
-		# )
-
-		return self.cost
-
-		# self.cost =  tf.mul(
-		# 	-1.0 / float(self.n_samples),
-		# 	tf.reduce_sum(
-		# 		tf.add(
-		# 			self.DKL,
-		# 			self.rec_loss
-		# 		)
-		# 	)
-		# )
-
-		# return self.cost
-
+		self.decay_weight = 0.0
+		return self.cost + self.decay*self.decay_weight
 
 	def build_sampler(self, input_var):
 		assert self.built, 'The encoder and the decoder have not been built yet!'
 
-		# temp = self._decoder(input_var)
-		# self.sampler_mean = FullyConnected(self.p_layers[-1], self.input_dims, act_fn, name='samp_dec_mean')
-		# self.sampler_mean = self.sampler_mean(temp)
-		# self.sampler_std = FullyConnected(self.p_layers[-1], self.input_dims, act_fn, name='samp_dec_std')
-		# self.sampler_std = self.sampler_std(temp)
-
-		# self.sampler = tf.add(
-		# 	tf.mul(
-		# 		tf.random_normal(
-		# 			[self.n_samples, self.input_dims]
-		# 		),
-		# 		self.sampler_std
-		# 	),
-		# 	self.sampler_mean
-		# )
-
-		# return self.sampler
-
 		temp = self._decoder(input_var)
 
-		self.sampler_mean = FullyConnected(self.p_layers[-1], self.input_dims, dec_mean_act_fn, name='samp_dec_mean')
-		self.sampler_mean = self.sampler_mean(temp)
-		self.sampler_log_std_sq = FullyConnected(self.p_layers[-1], self.input_dims, mean_std_act_fn, name='samp_dec_std')
-		self.sampler_log_std_sq = self.sampler_log_std_sq(temp)
+		self.sampler_mean = self._dec_mean(temp)
+		self.sampler_log_std_sq = self._dec_log_std_sq(temp)
 
 		sampler_std = tf.exp(
 			tf.mul(

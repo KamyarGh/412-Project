@@ -11,12 +11,41 @@ import config
 import argparse
 import utils
 import os
-from evaluate import save_samples
+from evaluate import save_samples, save_dash_samples
 from numpy.random import multivariate_normal as MVN, uniform
 
 def train(options):
     # Get logger
     log = utils.get_logger(os.path.join(options['model_dir'], 'log.txt'))
+    options_file = open(os.path.join(options['dashboard_dir'], 'options'), 'w')
+    for optn in options:
+        options_file.write(optn)
+        options_file.write(':\t')
+        options_file.write(str(options[optn]))
+        options_file.write('\n')
+    options_file.close()
+
+    # Dashboard Catalog
+    catalog = open(os.path.join(options['dashboard_dir'], 'catalog'), 'w')
+    catalog.write(
+"""filename,type,name
+options,plain,Options
+train_loss.csv,csv,Train Loss
+ll.csv,csv,Neg. Log-Likelihood
+dkl.csv,csv,DKL
+val_loss.csv,csv,Validation Loss
+"""
+    )
+    catalog.flush()
+    train_log = open(os.path.join(options['dashboard_dir'], 'train_loss.csv'), 'w')
+    val_log = open(os.path.join(options['dashboard_dir'], 'val_loss.csv'), 'w')
+    dkl_log = open(os.path.join(options['dashboard_dir'], 'dkl.csv'), 'w')
+    ll_log = open(os.path.join(options['dashboard_dir'], 'll.csv'), 'w')
+
+    train_log.write('step,time,Train Loss\n')
+    val_log.write('step,time,Validation Loss\n')
+    dkl_log.write('step,time,DKL\n')
+    ll_log.write('step,time,-LL\n')
 
     # Print options
     utils.print_options(options, log)
@@ -31,9 +60,9 @@ def train(options):
     num_data_points -= 2
 
     train_provider = DataProvider(
-    	num_data_points,
-    	options['batch_size'],
-    	toolbox.ImageLoader(
+        num_data_points,
+        options['batch_size'],
+        toolbox.ImageLoader(
             data_dir = os.path.join(options['data_dir'], 'train'),
             flat=True
         )
@@ -48,11 +77,11 @@ def train(options):
     num_data_points -= 2
 
     val_provider = DataProvider(
-    	num_data_points,
+        num_data_points,
         options['batch_size'],
         toolbox.ImageLoader(
-        	data_dir = os.path.join(options['data_dir'], 'val'),
-        	flat = True
+            data_dir = os.path.join(options['data_dir'], 'val'),
+            flat = True
         )
     )
     log.info('Data providers initialized.')
@@ -61,24 +90,24 @@ def train(options):
     # Initialize model ------------------------------------------------------------------
     with tf.device('/gpu:0'):
         model = cupboard(options['model'])(
-        	options['p_layers'],
-        	options['q_layers'],
-        	np.prod(options['img_shape']),
-        	options['latent_dims'],
-        	'vanilla_vae'
+            options['p_layers'],
+            options['q_layers'],
+            np.prod(options['img_shape']),
+            options['latent_dims'],
+            'vanilla_vae'
         )
         log.info('Model initialized')
 
         # Define inputs
         model_input_batch = tf.placeholder(
-        	tf.float32,
-        	shape = [options['batch_size'], np.prod(np.array(options['img_shape']))],
-        	name = 'enc_inputs'
+            tf.float32,
+            shape = [options['batch_size'], np.prod(np.array(options['img_shape']))],
+            name = 'enc_inputs'
         )
         sampler_input_batch = tf.placeholder(
-        	tf.float32,
-        	shape = [options['batch_size'], options['latent_dims']],
-        	name = 'dec_inputs'
+            tf.float32,
+            shape = [options['batch_size'], options['latent_dims']],
+            name = 'dec_inputs'
         )
         log.info('Inputs defined')
 
@@ -94,6 +123,7 @@ def train(options):
         optimizer = tf.train.AdamOptimizer(
             learning_rate=options['lr']
         )
+        # optimizer = tf.train.GradientDescentOptimizer(learning_rate=options['lr'])
         train_step = optimizer.minimize(cost_function)
         log.info('Optimizer graph built')
 
@@ -140,7 +170,7 @@ def train(options):
                 batch_rel_idx += 1
 
                 result = sess.run(
-                    # (cost_function, train_step, model.enc_std, model.enc_mean, model.encoder, model.dec_std, model.dec_mean, model.decoder, model.rec_loss, model.DKL, model.d1, model.d2, model.d3),
+                    # (cost_function, train_step, model.enc_std, model.enc_mean, model.encoder, model.dec_std, model.dec_mean, model.decoder, model.rec_loss, model.DKL),
                     #       0           1               2           3               4               5               6              7               8            9           10
                     (cost_function, train_step, model.DKL, model.rec_loss, model.dec_mean),
                     feed_dict = {
@@ -150,8 +180,14 @@ def train(options):
 
                 cost = result[0]
 
-                if np.mean(result[-2]) > -1.0:
-                    return
+                if batch_abs_idx % 10 == 0:
+                    train_log.write('{},{},{}\n'.format(batch_abs_idx, '2016-04-22', np.mean(last_losses)))
+                    dkl_log.write('{},{},{}\n'.format(batch_abs_idx, '2016-04-22', -np.mean(result[2])))
+                    ll_log.write('{},{},{}\n'.format(batch_abs_idx, '2016-04-22', -np.mean(result[3])))
+
+                    train_log.flush()
+                    dkl_log.flush()
+                    ll_log.flush()
 
                 # print('\n\nENC_MEAN:')
                 # print(result[3])
@@ -208,8 +244,8 @@ def train(options):
                         float(cost),
                         np.mean(last_losses)
                     ))
-                    log.info('Batch Mean Reconstruction Loss: {:0>15.4f}'.format(np.mean(result[3], axis=0)))
-                    log.info('Batch Mean DKL: {:0>15.4f}'.format(np.mean(result[2], axis=0)))
+                    log.info('Batch Mean LL: {:0>15.4f}'.format(np.mean(result[3], axis=0)))
+                    log.info('Batch Mean -DKL: {:0>15.4f}'.format(np.mean(result[2], axis=0)))
 
                 # Save model
                 if np.mod(batch_abs_idx, options['freq_saving']) == 0:
@@ -218,6 +254,8 @@ def train(options):
 
                 # Validate model
                 if np.mod(batch_abs_idx, options['freq_validation']) == 0:
+
+                    model._decoder.layers[0].weights['w'].eval()[:5,:5]
 
                     valid_costs = []
                     seen_batches = 0
@@ -252,13 +290,26 @@ def train(options):
                         }
                     )
 
+                    val_log.write('{},{},{}\n'.format(batch_abs_idx, '2016-04-22', np.mean(valid_costs)))
+                    val_log.flush()
+
+                    save_dash_samples(
+                        catalog,
+                        val_samples,
+                        batch_abs_idx,
+                        options['dashboard_dir'],
+                        flat_samples=True,
+                        img_shape=options['img_shape'],
+                        num_to_save=5
+                    )
+
                     save_samples(
                         val_samples,
                         int(batch_abs_idx/options['freq_validation']),
                         os.path.join(options['model_dir'], 'valid_samples'),
                         True,
                         options['img_shape'],
-                        10
+                        5
                     )
 
                     save_samples(
@@ -267,7 +318,7 @@ def train(options):
                         os.path.join(options['model_dir'], 'input_sanity'),
                         True,
                         options['img_shape'],
-                        options['batch_size']
+                        num_to_save=5
                     )
 
                     save_samples(
@@ -276,7 +327,7 @@ def train(options):
                         os.path.join(options['model_dir'], 'rec_sanity'),
                         True,
                         options['img_shape'],
-                        options['batch_size']
+                        num_to_save=5
                     )
 
 
@@ -285,16 +336,16 @@ def train(options):
 
 
 if __name__ == '__main__':
-	parser = argparse.ArgumentParser(description='Vanilla VAE')
+    parser = argparse.ArgumentParser(description='Vanilla VAE')
 
-	parser.add_argument(
-		'experiment',
-		type = str,
-		help = 'Path to config of the experiment'
-	)
+    parser.add_argument(
+        'experiment',
+        type = str,
+        help = 'Path to config of the experiment'
+    )
 
-	args = parser.parse_args()
+    args = parser.parse_args()
 
-	options = config.load_config(args.experiment)
+    options = config.load_config(args.experiment)
 
-	train(options)
+    train(options)

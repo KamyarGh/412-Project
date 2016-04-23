@@ -38,4 +38,19 @@ def load_config(json_path):
         else:
             exit()
 
+    if not os.path.exists(options['dashboard_dir']):
+        create_dir = ''
+        while create_dir not in ['y', 'n']:
+            create_dir = raw_input(
+                'Visualization dir does not exist. Do you want to create it? [y/n]' +
+                ' {}'.format(options['dashboard_dir'])
+            )
+
+        if create_dir == 'y':
+            os.makedirs(options['dashboard_dir'])
+            res_cat = open('/u/kamyar/public_html/results/catalog', 'a')
+            res_cat.write(options['dashboard_dir'].split('/')[-1] + '\n')
+        else:
+            exit()
+
     return options
