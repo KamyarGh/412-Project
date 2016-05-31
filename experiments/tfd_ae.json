@@ -1,0 +1,27 @@
+{
+  "batch_size": 128,
+  "freq_logging": 1,
+  "freq_saving": 1000,
+  "freq_validation": 500,
+  "img_shape": [48, 48],
+  "input_channels": 1,
+  "enc_params": {
+    "layer_dims": [2000, 1024, 400],
+    "act_fn": ["tanh","tanh","tanh"]
+  },
+  "dec_params": {
+    "layer_dims": [1024, 2000, 2304],
+    "act_fn": ["tanh", "tanh", "linear"]
+  },
+  "noise_std": 0.15,
+  "lr": 0.0005,
+  "model": "ae",
+  "model_dir": "./models/tfd_ae",
+  "dashboard_dir": "/u/kamyar/public_html/results/tfd_ae",
+  "data_dir": "./TFD",
+  "n_epochs": 50,
+  "random_seed": 12345,
+  "reload": false,
+  "valid_batches": 10,
+  "description": "An FC Denoising AE"
+}

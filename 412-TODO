@@ -32,7 +32,7 @@ Thursday:
 ~~~~~~~~~
 Vanilla VAE: (Thursday)
 	- FC VAE
-	- Convolutional VAE
+	- Convolutional VAE (NO TIME)
 
 New Method:
 	- Using Autoencoder (Thursday)
@@ -53,6 +53,8 @@ Evaluations:
 		- New method AE
 		- New method classifier
 		- Visual Algebra
+
+		- Visualize the features it learned?
 
 
 Saturday:

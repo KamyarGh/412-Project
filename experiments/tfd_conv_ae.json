@@ -1,0 +1,36 @@
+{
+  "batch_size": 128,
+  "freq_logging": 1,
+  "freq_saving": 100,
+  "freq_validation": 50,
+  "img_shape": [48, 48],
+  "input_channels": 1,
+  "enc_params": {
+    "kernels": [
+      [2,2],
+      [2,2],
+      [2,2]
+    ],
+    "strides": [
+      [2,2],
+      [2,2],
+      [2,2]
+    ],
+    "num_filters": [64,64,64],
+    "act_fn": ["sigmoid","sigmoid","sigmoid"]
+  },
+  "dec_params": {
+    "layer_dims": [400,1024,2304],
+    "act_fn": ["linear", "linear", "linear"]
+  },
+  "noise_std": 0.01,
+  "lr": 0.001,
+  "model": "conv_ae",
+  "model_dir": "./models/tfd_ae",
+  "dashboard_dir": "/u/kamyar/public_html/results/tfd_ae",
+  "data_dir": "./TFD",
+  "n_epochs": 50,
+  "random_seed": 12345,
+  "reload": false,
+  "valid_batches": 10
+}

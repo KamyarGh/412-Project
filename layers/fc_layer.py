@@ -57,6 +57,7 @@ class FullyConnected(object):
             input_dim,
             output_dim,
             activation=None,
+            init_weights=None,
             scale=0.01,
             name=''
     ):
@@ -69,21 +70,50 @@ class FullyConnected(object):
         self.activation = activation
         self.weights = {}
         self.scale = scale
-        self.build()
+        self.build(init_weights)
 
-    def build(self):
+    def build(self, init_weights):
         """
         Initialize weights.
         """
-        self.weights['w'] = uniform_weights(
-            self.input_dim,
-            self.output_dim,
-            scale = self.scale,
-            name='{}_w'.format(self.name)
+        if init_weights:
+            self.weights['w'] = tf.Variable(
+                init_weights['w'],
+                name='{}_w'.format(self.name)
+            )
+            self.weights['b'] = tf.Variable(
+                init_weights['b'],
+                name='{}_b'.format(self.name)
+            )
+        else:
+            self.weights['w'] = uniform_weights(
+                self.input_dim,
+                self.output_dim,
+                scale = self.scale,
+                name='{}_w'.format(self.name)
+            )
+            self.weights['b'] = zeros(
+                self.output_dim,
+                name='{}_b'.format(self.name)
+            )
+
+    def re_init_weights(self, sess):
+        sess.run(
+            self.weights['w'].assign(
+                np.random.uniform(
+                    low=-self.scale,
+                    high=self.scale,
+                    size=(self.input_dim, self.output_dim)
+                ).astype('float32')
+            )
         )
-        self.weights['b'] = zeros(
-            self.output_dim,
-            name='{}_b'.format(self.name)
+        sess.run(
+            self.weights['b'].assign(
+                np.zeros(
+                    (self.output_dim),
+                    dtype='float32'
+                )
+            )
         )
 
     def __call__(self, x):
@@ -99,6 +129,39 @@ class FullyConnected(object):
 
 
 
+
+
+class ConstFC(object):
+    """
+    Fully connected layer.
+    """
+    def __init__(
+            self,
+            W,
+            b,
+            activation=None,
+            name=''
+    ):
+        """
+        Initialization.
+        """
+        self.name = name
+        self.activation = activation
+        self.weights = {}
+
+        self.weights['w'] = tf.constant(W)
+        self.weights['b'] = tf.constant(b)
+
+    def __call__(self, x):
+        """
+        Forward pass.
+        """
+        pre_act = tf.matmul(x, self.weights['w']) + self.weights['b']
+
+        if self.activation is None or self.activation == 'linear':
+            return pre_act
+
+        return self.activation(pre_act)
 
 
 

@@ -1,0 +1,28 @@
+{
+  "batch_size": 128,
+  "freq_logging": 1,
+  "freq_saving": 1000,
+  "freq_validation": 500,
+  "img_shape": [28, 28],
+  "input_channels": 1,
+  "enc_params": {
+    "layer_dims": [64, 60],
+    "act_fn": ["tanh","tanh"]
+  },
+  "dec_params": {
+    "layer_dims": [64, 784],
+    "act_fn": ["tanh", "linear"]
+  },
+  "noise_std": 0.15,
+  "lr": 0.0005,
+  "model": "ae",
+  "model_dir": "./models/mnist_small_ae",
+  "dashboard_dir": "/u/kamyar/public_html/results/mnist_small_ae",
+  "data_dir": "MNIST",
+  "data_percentage": 1.0,
+  "n_epochs": 50,
+  "random_seed": 12345,
+  "reload": false,
+  "valid_batches": 10,
+  "description": "An FC Denoising AE"
+}

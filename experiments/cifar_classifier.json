@@ -1,33 +1,37 @@
 {
   "batch_size": 128,
   "freq_logging": 1,
-  "freq_saving": 100,
-  "freq_validation": 10,
+  "freq_saving": 1000,
+  "freq_validation": 100,
   "img_shape": [32, 32],
   "input_channels": 3,
   "num_classes": 10,
   "conv_params": {
-    "n_filters": [32, 16, 8],
+    "n_filters": [32, 16, 16],
     "kernels": [
       [4, 4],
-      [3, 3],
+      [2, 2],
       [2, 2]
     ],
     "strides": [
       [2, 2],
-      [2, 2],
-      [2, 2]
-    ]
+      [1, 1],
+      [1, 1]
+    ],
+    "act_fn": ["tanh", "tanh", "tanh"]
     },
   "fc_params": {
-    "dims": [128]
+    "dims": [128],
+    "act_fn": ["tanh", "tanh", "tanh"]
     },
-  "lr": 0.01,
+  "lr": 0.0005,
   "model": "cnn_classifier",
-  "model_dir": "~/models/cifar_classifier",
+  "model_dir": "~/models/final_cifar_classifier",
   "data_dir": "./CIFAR_10",
+  "dashboard_dir": "/u/kamyar/public_html/results/final_cifar_classifier",
   "n_epochs": 50,
   "random_seed": 12345,
   "reload": false,
-  "valid_batches": 10
+  "valid_batches": 10,
+  "description": "CIFAR Classifier"
 }

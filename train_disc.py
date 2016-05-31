@@ -39,7 +39,7 @@ def train(options):
     catalog.write(
 """filename,type,name
 options,plain,Options
-train_loss.csv,csv,Train Loss
+train_loss.csv,csv,Discriminator Cross-Entropy
 ll.csv,csv,Neg. Log-Likelihood
 dec_log_sig_sq.csv,csv,Decoder Log Simga^2
 dec_std_log_sig_sq.csv,csv,STD of Decoder Log Simga^2
@@ -67,19 +67,19 @@ val_loss.csv,csv,Validation Loss
     enc_mean_log = open(os.path.join(options['dashboard_dir'], 'enc_mean.csv'), 'w')
     # val_sig_log = open(os.path.join(options['dashboard_dir'], 'val_log_sig_sq.csv'), 'w')
 
-    train_log.write('step,time,Train Loss\n')
-    val_log.write('step,time,Validation Loss\n')
-    dkl_log.write('step,time,DKL\n')
-    ll_log.write('step,time,-LL\n')
+    train_log.write('step,time,Train CE (Training Vanilla),Train CE (Training Gen.),Train CE (Training Disc.)\n')
+    val_log.write('step,time,Validation CE (Training Vanilla),Validation CE (Training Gen.),Validation CE (Training Disc.)\n')
+    dkl_log.write('step,time,DKL (Training Vanilla),DKL (Training Gen.),DKL (Training Disc.)\n')
+    ll_log.write('step,time,-LL (Training Vanilla),-LL (Training Gen.),-LL (Training Disc.)\n')
 
-    dec_sig_log.write('step,time,Decoder Log Sigma^2\n')
-    enc_sig_log.write('step,time,Encoder Log Sigma^2\n')
+    dec_sig_log.write('step,time,Decoder Log Sigma^2 (Training Vanilla),Decoder Log Sigma^2 (Training Gen.),Decoder Log Sigma^2 (Training Disc.)\n')
+    enc_sig_log.write('step,time,Encoder Log Sigma^2 (Training Vanilla),Encoder Log Sigma^2 (Training Gen.),Encoder Log Sigma^2 (Training Disc.)\n')
 
-    dec_std_sig_log.write('step,time,STD of Decoder Log Sigma^2\n')
-    enc_std_sig_log.write('step,time,STD of Encoder Log Sigma^2\n')
+    dec_std_sig_log.write('step,time,STD of Decoder Log Sigma^2 (Training Vanilla),STD of Decoder Log Sigma^2 (Training Gen.),STD of Decoder Log Sigma^2 (Training Disc.)\n')
+    enc_std_sig_log.write('step,time,STD of Encoder Log Sigma^2 (Training Vanilla),STD of Encoder Log Sigma^2 (Training Gen.),STD of Encoder Log Sigma^2 (Training Disc.)\n')
 
-    dec_mean_log.write('step,time,Decoder Mean\n')
-    enc_mean_log.write('step,time,Encoder Mean\n')
+    dec_mean_log.write('step,time,Decoder Mean (Training Vanilla),Decoder Mean (Training Gen.),Decoder Mean (Training Disc.)\n')
+    enc_mean_log.write('step,time,Encoder Mean (Training Vanilla),Encoder Mean (Training Gen.),Encoder Mean (Training Disc.)\n')
 
     # Print options
     utils.print_options(options, log)
@@ -91,17 +91,6 @@ val_loss.csv,csv,Validation Loss
 
     # Initialize model ------------------------------------------------------------------
     with tf.device('/gpu:0'):
-        model = cupboard(options['model'])(
-            options['p_layers'],
-            options['q_layers'],
-            np.prod(options['img_shape']),
-            options['latent_dims'],
-            options['DKL_weight'],
-            options['sigma_clip'],
-            'vanilla_vae'
-        )
-        log.info('Model initialized')
-
         # Define inputs
         model_input_batch = tf.placeholder(
             tf.float32,
@@ -115,43 +104,45 @@ val_loss.csv,csv,Validation Loss
         )
         log.info('Inputs defined')
 
-        # Define forward pass
-        cost_function = model(model_input_batch)
-        log.info('Forward pass graph built')
+        # Define model
+        with tf.variable_scope('vae_scope'):
+            vae_model = cupboard('vanilla_vae')(
+                options['p_layers'],
+                options['q_layers'],
+                np.prod(options['img_shape']),
+                options['latent_dims'],
+                options['DKL_weight'],
+                options['sigma_clip'],
+                'vae_model'
+            )
 
-        # Define sampler
-        sampler = model.build_sampler(sampler_input_batch)
-        log.info('Sampler graph built')
+        with tf.variable_scope('disc_scope'):
+            disc_model = cupboard('fixed_conv_disc')(
+                pickle.load(open(options['disc_params_path'], 'rb')),
+                options['num_feat_layers'],
+                name='disc_model'
+            )
 
-        # Define optimizer
+        vae_gan = cupboard('vae_gan')(
+            vae_model,
+            disc_model,
+            options['disc_weight'],
+            options['img_shape'],
+            options['input_channels'],
+            'vae_scope',
+            'disc_scope',
+            name='vae_gan_model'
+        )
+
+        # Define Optimizers ---------------------------------------------------------------------
         optimizer = tf.train.AdamOptimizer(
             learning_rate=options['lr']
         )
-        # optimizer = tf.train.GradientDescentOptimizer(learning_rate=options['lr'])
-        
-        train_step = optimizer.minimize(cost_function)
 
-        # Get gradients
-        grads = optimizer.compute_gradients(cost_function)
-        grad_tensors = [gv[0] for gv in grads]
-
-        # Clip gradients
-        clip_grads = [(tf.clip_by_norm(gv[0], 5.0, name='grad_clipping'), gv[1]) for gv in grads]
-
-        # Update op
-        backpass = optimizer.apply_gradients(clip_grads)
+        vae_backpass, disc_backpass, vanilla_backpass = vae_gan(model_input_batch, sampler_input_batch, optimizer)
 
         log.info('Optimizer graph built')
-
-        # # Get gradients
-        # grad = optimizer.compute_gradients(cost_function)
-
-        # # Clip gradients
-        # clipped_grad = tf.clip_by_norm(grad, 5.0, name='grad_clipping')
-
-        # # Update op
-        # backpass = optimizer.apply_gradients(clipped_grad)
-
+        # --------------------------------------------------------------------------------------
         # Define init operation
         init_op = tf.initialize_all_variables()
         log.info('Variable initialization graph built')
@@ -166,31 +157,24 @@ val_loss.csv,csv,Validation Loss
         log.info('Session started')
 
         # Initialize shared variables or restore
-        if options['reload']:
+        if options['reload_all']:
             saver.restore(sess, options['reload_file'])
             log.info('Shared variables restored')
-
-            # test_LL_and_DKL(sess, test_provider, model.DKL, model.rec_loss, options, model_input_batch)
-            # return
-
-            # if options['data_dir'] == 'MNIST':
-            #     mean_img = np.zeros(np.prod(options['img_shape']))
-            #     std_img = np.ones(np.prod(options['img_shape']))
-            # else:
-            #     mean_img = np.load(os.path.join(options['data_dir'], 'mean' + options['extension']))
-            #     std_img = np.load(os.path.join(options['data_dir'], 'std' + options['extension']))
-            # visualize(model.sampler_mean, sess, model.dec_mean, model.dec_log_std_sq, sampler, sampler_input_batch,
-            #             model_input_batch, model.enc_mean, model.enc_log_std_sq,
-            #             train_provider, val_provider, options, catalog, mean_img, std_img)
-            # return
         else:
             sess.run(init_op)
-            log.info('Shared variables initialized')
+            log.info('Variables initialized')
+
+            if options['reload_vae']:
+                vae_model.reload_vae(options['vae_params_path'])
 
         # Define last losses to compute a running average
         last_losses = np.zeros((10))
 
         batch_abs_idx = 0
+        D_to_G = options['D_to_G']
+        total_D2G = sum(D_to_G)
+        base = options['initial_G_iters'] + options['initial_D_iters']
+
         for epoch_idx in xrange(options['n_epochs']):
             batch_rel_idx = 0
             log.info('Epoch {}'.format(epoch_idx + 1))
@@ -202,67 +186,70 @@ val_loss.csv,csv,Validation Loss
                 batch_abs_idx += 1
                 batch_rel_idx += 1
 
+                if batch_abs_idx < options['initial_G_iters']:
+                    backpass = vanilla_backpass
+                    log_format_string = '{},{},{},,\n'
+                elif options['initial_G_iters'] <= batch_abs_idx < base:
+                    backpass = disc_backpass
+                    log_format_string = '{},{},,,{}\n'
+                else:
+                    if (batch_abs_idx - base) % total_D2G < D_to_G[0]:
+                        backpass = disc_backpass
+                        log_format_string = '{},{},,,{}\n'
+                    else:
+                        backpass = vae_backpass
+                        log_format_string = '{},{},,{},\n'
+
                 result = sess.run(
-                    # (cost_function, train_step, model.enc_std, model.enc_mean, model.encoder, model.dec_std, model.dec_mean, model.decoder, model.rec_loss, model.DKL),
-                    #       0           1          2           3               4                     5                       6              7               8            9           10
-                    [cost_function, backpass, model.DKL, model.rec_loss, model.dec_log_std_sq, model.enc_log_std_sq, model.enc_mean, model.dec_mean],
+                    [
+                        vae_gan.disc_CE,
+                        backpass,
+                        vae_gan._vae.DKL,
+                        vae_gan._vae.rec_loss,
+                        vae_gan._vae.dec_log_std_sq,
+                        vae_gan._vae.enc_log_std_sq,
+                        vae_gan._vae.enc_mean,
+                        vae_gan._vae.dec_mean
+                    ],
                     feed_dict = {
-                        model_input_batch: inputs
+                        model_input_batch: inputs,
+                        sampler_input_batch: MVN(
+                            np.zeros(options['latent_dims']),
+                            np.diag(np.ones(options['latent_dims'])),
+                            size = options['batch_size']
+                        )
                     }
                 )
 
                 cost = result[0]
 
                 if batch_abs_idx % 10 == 0:
-                    train_log.write('{},{},{}\n'.format(batch_abs_idx, '2016-04-22', np.mean(last_losses)))
-                    dkl_log.write('{},{},{}\n'.format(batch_abs_idx, '2016-04-22', -np.mean(result[2])))
-                    ll_log.write('{},{},{}\n'.format(batch_abs_idx, '2016-04-22', -np.mean(result[3])))
+                    train_log.write(log_format_string.format(batch_abs_idx, '2016-04-22', np.mean(last_losses)))
+                    dkl_log.write(log_format_string.format(batch_abs_idx, '2016-04-22', -np.mean(result[2])))
+                    ll_log.write(log_format_string.format(batch_abs_idx, '2016-04-22', -np.mean(result[3])))
 
                     train_log.flush()
                     dkl_log.flush()
                     ll_log.flush()
 
-                    dec_sig_log.write('{},{},{}\n'.format(batch_abs_idx, '2016-04-22', np.mean(result[4])))
-                    enc_sig_log.write('{},{},{}\n'.format(batch_abs_idx, '2016-04-22', np.mean(result[5])))
+                    dec_sig_log.write(log_format_string.format(batch_abs_idx, '2016-04-22', np.mean(result[4])))
+                    enc_sig_log.write(log_format_string.format(batch_abs_idx, '2016-04-22', np.mean(result[5])))
                     # val_sig_log.write('{},{},{}\n'.format(batch_abs_idx, '2016-04-22', np.mean(result[6])))
 
                     dec_sig_log.flush()
                     enc_sig_log.flush()
 
-                    dec_std_sig_log.write('{},{},{}\n'.format(batch_abs_idx, '2016-04-22', np.std(result[4])))
-                    enc_std_sig_log.write('{},{},{}\n'.format(batch_abs_idx, '2016-04-22', np.std(result[5])))
+                    dec_std_sig_log.write(log_format_string.format(batch_abs_idx, '2016-04-22', np.std(result[4])))
+                    enc_std_sig_log.write(log_format_string.format(batch_abs_idx, '2016-04-22', np.std(result[5])))
 
-                    dec_mean_log.write('{},{},{}\n'.format(batch_abs_idx, '2016-04-22', np.mean(result[7])))
-                    enc_mean_log.write('{},{},{}\n'.format(batch_abs_idx, '2016-04-22', np.mean(result[6])))
+                    dec_mean_log.write(log_format_string.format(batch_abs_idx, '2016-04-22', np.mean(result[7])))
+                    enc_mean_log.write(log_format_string.format(batch_abs_idx, '2016-04-22', np.mean(result[6])))
 
                     dec_std_sig_log.flush()
                     enc_std_sig_log.flush()
 
                     dec_mean_log.flush()
-                    enc_mean_log.flush()                    
-                    # val_sig_log.flush()
-                # print('\n\nENC_MEAN:')
-                # print(result[3])
-                # print('\n\nENC_STD:')
-                # print(result[2])
-                # print('\nDEC_MEAN:')
-                # print(result[6])
-                # print('\nDEC_STD:')
-                # print(result[5])
-
-                # print('\n\nENCODER WEIGHTS:')
-                # print(model._encoder.layers[0].weights['w'].eval())
-                # print('\n\DECODER WEIGHTS:')
-                # print(model._decoder.layers[0].weights['w'].eval())
-
-                # print(model._encoder.layers[0].weights['w'].eval())
-                # print(result[2])
-                # print(result[3])
-
-                # print(result[3])
-                # print(result[2])
-                # print(result[-2])
-                # print(result[-1])
+                    enc_mean_log.flush()
 
                 # Check cost
                 if np.isnan(cost) or np.isinf(cost):
@@ -275,7 +262,7 @@ val_loss.csv,csv,Validation Loss
                             pass
                         print(result[i])
                     print(result[3].shape)
-                    print(model._encoder.layers[0].weights['w'].eval())
+                    print(vae_gan._vae._encoder.layers[0].weights['w'].eval())
                     print('\n\nAny:')
                     print(np.any(np.isnan(result[8])))
                     print(np.any(np.isnan(result[9])))
@@ -306,60 +293,60 @@ val_loss.csv,csv,Validation Loss
 
                     save_dict = {}
                     # Save encoder params ------------------------------------------------------------------
-                    for i in range(len(model._encoder.layers)):
+                    for i in range(len(vae_gan._vae._encoder.layers)):
                         layer_dict = {
-                            'input_dim':model._encoder.layers[i].input_dim,
-                            'output_dim':model._encoder.layers[i].output_dim,
-                            'act_fn':model._encoder.layers[i].activation,
-                            'W':model._encoder.layers[i].weights['w'].eval(),
-                            'b':model._encoder.layers[i].weights['b'].eval()
+                            'input_dim':vae_gan._vae._encoder.layers[i].input_dim,
+                            'output_dim':vae_gan._vae._encoder.layers[i].output_dim,
+                            'act_fn':vae_gan._vae._encoder.layers[i].activation,
+                            'W':vae_gan._vae._encoder.layers[i].weights['w'].eval(),
+                            'b':vae_gan._vae._encoder.layers[i].weights['b'].eval()
                         }
                         save_dict['encoder'] = layer_dict
 
                     layer_dict = {
-                        'input_dim':model._enc_mean.input_dim,
-                        'output_dim':model._enc_mean.output_dim,
-                        'act_fn':model._enc_mean.activation,
-                        'W':model._enc_mean.weights['w'].eval(),
-                        'b':model._enc_mean.weights['b'].eval()
+                        'input_dim':vae_gan._vae._enc_mean.input_dim,
+                        'output_dim':vae_gan._vae._enc_mean.output_dim,
+                        'act_fn':vae_gan._vae._enc_mean.activation,
+                        'W':vae_gan._vae._enc_mean.weights['w'].eval(),
+                        'b':vae_gan._vae._enc_mean.weights['b'].eval()
                     }
                     save_dict['enc_mean'] = layer_dict
 
                     layer_dict = {
-                        'input_dim':model._enc_log_std_sq.input_dim,
-                        'output_dim':model._enc_log_std_sq.output_dim,
-                        'act_fn':model._enc_log_std_sq.activation,
-                        'W':model._enc_log_std_sq.weights['w'].eval(),
-                        'b':model._enc_log_std_sq.weights['b'].eval()
+                        'input_dim':vae_gan._vae._enc_log_std_sq.input_dim,
+                        'output_dim':vae_gan._vae._enc_log_std_sq.output_dim,
+                        'act_fn':vae_gan._vae._enc_log_std_sq.activation,
+                        'W':vae_gan._vae._enc_log_std_sq.weights['w'].eval(),
+                        'b':vae_gan._vae._enc_log_std_sq.weights['b'].eval()
                     }
                     save_dict['enc_log_std_sq'] = layer_dict
 
                     # Save decoder params ------------------------------------------------------------------
-                    for i in range(len(model._decoder.layers)):
+                    for i in range(len(vae_gan._vae._decoder.layers)):
                         layer_dict = {
-                            'input_dim':model._decoder.layers[i].input_dim,
-                            'output_dim':model._decoder.layers[i].output_dim,
-                            'act_fn':model._decoder.layers[i].activation,
-                            'W':model._decoder.layers[i].weights['w'].eval(),
-                            'b':model._decoder.layers[i].weights['b'].eval()
+                            'input_dim':vae_gan._vae._decoder.layers[i].input_dim,
+                            'output_dim':vae_gan._vae._decoder.layers[i].output_dim,
+                            'act_fn':vae_gan._vae._decoder.layers[i].activation,
+                            'W':vae_gan._vae._decoder.layers[i].weights['w'].eval(),
+                            'b':vae_gan._vae._decoder.layers[i].weights['b'].eval()
                         }
                         save_dict['decoder'] = layer_dict
 
                     layer_dict = {
-                        'input_dim':model._dec_mean.input_dim,
-                        'output_dim':model._dec_mean.output_dim,
-                        'act_fn':model._dec_mean.activation,
-                        'W':model._dec_mean.weights['w'].eval(),
-                        'b':model._dec_mean.weights['b'].eval()
+                        'input_dim':vae_gan._vae._dec_mean.input_dim,
+                        'output_dim':vae_gan._vae._dec_mean.output_dim,
+                        'act_fn':vae_gan._vae._dec_mean.activation,
+                        'W':vae_gan._vae._dec_mean.weights['w'].eval(),
+                        'b':vae_gan._vae._dec_mean.weights['b'].eval()
                     }
                     save_dict['dec_mean'] = layer_dict
 
                     layer_dict = {
-                        'input_dim':model._dec_log_std_sq.input_dim,
-                        'output_dim':model._dec_log_std_sq.output_dim,
-                        'act_fn':model._dec_log_std_sq.activation,
-                        'W':model._dec_log_std_sq.weights['w'].eval(),
-                        'b':model._dec_log_std_sq.weights['b'].eval()
+                        'input_dim':vae_gan._vae._dec_log_std_sq.input_dim,
+                        'output_dim':vae_gan._vae._dec_log_std_sq.output_dim,
+                        'act_fn':vae_gan._vae._dec_log_std_sq.activation,
+                        'W':vae_gan._vae._dec_log_std_sq.weights['w'].eval(),
+                        'b':vae_gan._vae._dec_log_std_sq.weights['b'].eval()
                     }
                     save_dict['dec_log_std_sq'] = layer_dict
 
@@ -368,7 +355,7 @@ val_loss.csv,csv,Validation Loss
                 # Validate model
                 if np.mod(batch_abs_idx, options['freq_validation']) == 0:
 
-                    model._decoder.layers[0].weights['w'].eval()[:5,:5]
+                    vae_gan._vae._decoder.layers[0].weights['w'].eval()[:5,:5]
 
                     valid_costs = []
                     seen_batches = 0
@@ -377,9 +364,14 @@ val_loss.csv,csv,Validation Loss
                             val_batch = val_batch[0]
 
                         val_cost = sess.run(
-                            cost_function,
+                            vae_gan.disc_CE,
                             feed_dict = {
-                                model_input_batch: val_batch
+                                model_input_batch: val_batch,
+                                sampler_input_batch: MVN(
+                                    np.zeros(options['latent_dims']),
+                                    np.diag(np.ones(options['latent_dims'])),
+                                    size = options['batch_size']
+                                )
                             }
                         )
                         valid_costs.append(val_cost)
@@ -394,7 +386,7 @@ val_loss.csv,csv,Validation Loss
                     ))
 
                     val_samples = sess.run(
-                        sampler,
+                        vae_gan.sampler,
                         feed_dict = {
                             sampler_input_batch: MVN(
                                 np.zeros(options['latent_dims']),
@@ -404,7 +396,7 @@ val_loss.csv,csv,Validation Loss
                         }
                     )
 
-                    val_log.write('{},{},{}\n'.format(batch_abs_idx, '2016-04-22', np.mean(valid_costs)))
+                    val_log.write(log_format_string.format(batch_abs_idx, '2016-04-22', np.mean(valid_costs)))
                     val_log.flush()
 
                     save_ae_samples(
@@ -417,44 +409,6 @@ val_loss.csv,csv,Validation Loss
                         num_to_save=5,
                         save_gray=True
                     )
-
-                    # save_dash_samples(
-                    #     catalog,
-                    #     val_samples,
-                    #     batch_abs_idx,
-                    #     options['dashboard_dir'],
-                    #     flat_samples=True,
-                    #     img_shape=options['img_shape'],
-                    #     num_to_save=5
-                    # )
-
-                    # save_samples(
-                    #     val_samples,
-                    #     int(batch_abs_idx/options['freq_validation']),
-                    #     os.path.join(options['model_dir'], 'valid_samples'),
-                    #     True,
-                    #     options['img_shape'],
-                    #     5
-                    # )
-
-                    # save_samples(
-                    #     inputs,
-                    #     int(batch_abs_idx/options['freq_validation']),
-                    #     os.path.join(options['model_dir'], 'input_sanity'),
-                    #     True,
-                    #     options['img_shape'],
-                    #     num_to_save=5
-                    # )
-
-                    # save_samples(
-                    #     result[7],
-                    #     int(batch_abs_idx/options['freq_validation']),
-                    #     os.path.join(options['model_dir'], 'rec_sanity'),
-                    #     True,
-                    #     options['img_shape'],
-                    #     num_to_save=5
-                    # )
-
 
             log.info('End of epoch {}'.format(epoch_idx + 1))
     # --------------------------------------------------------------------------

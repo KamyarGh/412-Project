@@ -6,6 +6,8 @@ class DataProvider(object):
 	def __init__(self, num_data_points, batch_size, load_fn):
 		super(DataProvider, self).__init__()
 
+		np.random.seed(4444)
+
 		self.num_data_points = num_data_points
 		self.order = range(num_data_points)
 		self.batch_size = batch_size

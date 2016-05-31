@@ -24,14 +24,21 @@ if __name__ == '__main__':
 
 	for i in xrange(int(np.ceil(split['train'] * num_imgs))):
 		np.save(
-			os.path.join(save_dir, 'train/%d' % i),
+			os.path.join(save_dir, 'train/patches/%d' % i),
 			(imgs[i,:,:] - mean) / std
 		)
 		if i % 1000 == 0: print('%d Saved...' % i)
 
-	for i in xrange(int(np.ceil(split['train'] * num_imgs)), num_imgs):
+	for i in xrange(int(np.ceil(split['train'] * num_imgs)), int(np.ceil(split['train'] * num_imgs)) + int(np.ceil(split['val'] * num_imgs))):
 		np.save(
-			os.path.join(save_dir, 'val/%d' % (i - np.ceil(split['train'] * num_imgs))),
+			os.path.join(save_dir, 'valid/patches/%d' % (i - np.ceil(split['train'] * num_imgs))),
+			(imgs[i,:,:] - mean) / std
+		)
+		if i % 1000 == 0: print('%d Saved...' % i)
+
+	for i in xrange(int(np.ceil(split['train'] * num_imgs)) + int(np.ceil(split['val'] * num_imgs)), num_imgs):
+		np.save(
+			os.path.join(save_dir, 'test/patches/%d' % (i - np.ceil(split['train'] * num_imgs) - np.ceil(split['val'] * num_imgs))),
 			(imgs[i,:,:] - mean) / std
 		)
 		if i % 1000 == 0: print('%d Saved...' % i)

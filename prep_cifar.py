@@ -15,6 +15,19 @@ def unpickle(file):
     fo.close()
     return dict
 
+data = None
+for i in range(5):
+	dict = unpickle(os.path.join(cifar_dir, 'data_batch_%d'%(i+1)))
+	data = np.concatenate((dict['data'], data), axis=0) if data != None else dict['data']
+
+mean = np.mean(data, axis=0)
+std = np.std(data, axis=0)
+mean = np.reshape(mean, [32, 32, 3], order='F')
+mean = np.transpose(mean, (1,0,2))
+std = np.reshape(std, [32, 32, 3], order='F')
+std = np.transpose(std, (1,0,2))
+imsave(os.path.join(save_dir, 'mean.png'), mean)
+imsave(os.path.join(save_dir, 'std.png'), std)
 
 for i in range(4):
 	print(i+1)
@@ -28,6 +41,7 @@ for i in range(4):
 
 		img = np.reshape(img, [32, 32, 3], order='F')
 		img = np.transpose(img, (1,0,2))
+		img = (img - mean) / std
 		imsave(os.path.join(save_dir, 'train', 'patches', '%d.png' % (i*IPC + j)), img)
 
 		j_dict = {
@@ -53,10 +67,11 @@ for j, img in enumerate(data):
 
 	img = np.reshape(img, [32, 32, 3], order='F')
 	img = np.transpose(img, (1,0,2))
-	imsave(os.path.join(save_dir, 'valid', 'patches', '%d.png' % (i*IPC + j)), img)
+	img = (img - mean) / std
+	imsave(os.path.join(save_dir, 'valid', 'patches', '%d.png' % (j)), img)
 
 	j_dict = {
-		'patch': os.path.join(save_dir, 'valid', 'patches', '%d.png' % (i*IPC + j)),
+		'patch': os.path.join(save_dir, 'valid', 'patches', '%d.png' % (j)),
 		'label': labels[j]
 	}
-	dump(j_dict, open(os.path.join(save_dir, 'valid', 'info', '%d.json' % (i*IPC + j)), 'w'))
+	dump(j_dict, open(os.path.join(save_dir, 'valid', 'info', '%d.json' % (j)), 'w'))

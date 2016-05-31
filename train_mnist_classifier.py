@@ -13,8 +13,11 @@ import utils
 import os
 from evaluate import save_samples
 from numpy.random import multivariate_normal as MVN, uniform
+from layers.pool import PoolLayer
+from layers.conv import ConvLayer
 from copy import deepcopy
 import pickle
+from tensorflow.examples.tutorials.mnist import input_data
 
 def train(options):
     # Get logger
@@ -57,87 +60,70 @@ val_acc.csv,csv,Validation Accuracy
 
     # Load dataset ----------------------------------------------------------------------
     # Train provider
-    num_data_points = len(
-        os.listdir(
-            os.path.join(options['data_dir'], 'train', 'info')
-        )
-    )
-    num_data_points -= 2
+    mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 
-    train_provider = DataProvider(
-    	num_data_points,
-    	options['batch_size'],
-    	toolbox.CIFARLoader(
-            data_dir = os.path.join(options['data_dir'], 'train'),
-            flat=False
-        )
-    )
+    train_data = mnist.train.images
+    train_labels = mnist.train.labels
+    validation_data = mnist.validation.images
+    validation_labels = mnist.validation.labels
+    test_data = mnist.test.images
+    test_labels = mnist.test.labels
 
-    # Valid provider
-    num_data_points = len(
-        os.listdir(
-            os.path.join(options['data_dir'], 'valid', 'info')
-        )
-    )
-    num_data_points -= 2
+    data_percentage = options['data_percentage']
 
-    print(num_data_points)
+    print(train_data.shape)
 
-    val_provider = DataProvider(
-    	num_data_points,
-        options['batch_size'],
-        toolbox.CIFARLoader(
-        	data_dir = os.path.join(options['data_dir'], 'valid'),
-        	flat=False
-        )
-    )
     log.info('Data providers initialized.')
 
 
     # Initialize model ------------------------------------------------------------------
     with tf.device('/gpu:0'):
         model = cupboard(options['model'])(
-        	options['img_shape'],
-        	options['input_channels'],
+            options['img_shape'],
+            options['input_channels'],
             options['num_classes'],
             options['conv_params'],
+            options['pool_params'],
             options['fc_params'],
-        	'CIFAR_classifier'
+            'MNIST_classifier'
         )
         log.info('Model initialized')
 
         # Define inputs
         input_batch = tf.placeholder(
-        	tf.float32,
-        	shape = [options['batch_size']] + options['img_shape'] + [options['input_channels']],
-        	name = 'inputs'
+            tf.float32,
+            shape = [options['batch_size']] + options['img_shape'] + [options['input_channels']],
+            name = 'inputs'
         )
         label_batch = tf.placeholder(
             tf.float32,
             shape = [options['batch_size'], options['num_classes']],
             name = 'labels'
         )
+        keep_prob = tf.placeholder(tf.float32, name='keep_prob')
         log.info('Inputs defined')
 
         # Define forward pass
-        cost_function, classifier = model(input_batch, label_batch)
+        cost_function, classifier = model(input_batch, label_batch, keep_prob)
         log.info('Forward pass graph built')
 
         # Define optimizer
         optimizer = tf.train.AdamOptimizer(
             learning_rate=options['lr']
         )
-        train_step = optimizer.minimize(cost_function)
+        # train_step = optimizer.minimize(cost_function)
         log.info('Optimizer graph built')
 
-        # # Get gradients
-        # grad = optimizer.compute_gradients(cost_function)
+        # Get gradients
+        grads = optimizer.compute_gradients(cost_function)
+        grads = [gv for gv in grads if gv[0] != None]
+        grad_tensors = [gv[0] for gv in grads]
 
-        # # Clip gradients
-        # clipped_grad = tf.clip_by_norm(grad, 5.0, name='grad_clipping')
+        # Clip gradients
+        clip_grads = [(tf.clip_by_norm(gv[0], 5.0, name='grad_clipping'), gv[1]) for gv in grads]
 
-        # # Update op
-        # backpass = optimizer.apply_gradients(clipped_grad)
+        # Update op
+        backpass = optimizer.apply_gradients(clip_grads)
 
         # Define init operation
         init_op = tf.initialize_all_variables()
@@ -169,16 +155,22 @@ val_acc.csv,csv,Validation Accuracy
             batch_rel_idx = 0
             log.info('Epoch {}'.format(epoch_idx + 1))
 
-            for inputs, labels in train_provider:
+            for i in xrange(int((data_percentage * train_data.shape[0]) / options['batch_size'])):
+                inputs = np.reshape(
+                    train_data[i:i+options['batch_size'], :],
+                    [options['batch_size'], 28,28,1]
+                )
+                labels = train_labels[i:i+options['batch_size'], :]
 
                 batch_abs_idx += 1
                 batch_rel_idx += 1
 
                 results = sess.run(
-                    [cost_function, classifier, train_step],
+                    [cost_function, classifier, backpass] + [gv[0] for gv in grads],
                     feed_dict = {
                         input_batch: inputs,
-                        label_batch: labels
+                        label_batch: labels,
+                        keep_prob: 0.5
                     }
                 )
 
@@ -223,14 +215,38 @@ val_acc.csv,csv,Validation Accuracy
                     saver.save(sess, os.path.join(options['model_dir'], 'model_at_%d.ckpt' % batch_abs_idx))
 
                     save_dict = []
-                    for c_ind in xrange(0, len(model._classifier_conv.layers), 2):
+                    for c_ind in xrange(0, len(model._classifier_conv.layers)):
+                        if isinstance(model._classifier_conv.layers[c_ind], ConvLayer):
+                            layer_dict = {
+                                'n_filters_in': model._classifier_conv.layers[c_ind].n_filters_in,
+                                'n_filters_out': model._classifier_conv.layers[c_ind].n_filters_out,
+                                'input_dim': model._classifier_conv.layers[c_ind].input_dim,
+                                'filter_dim': model._classifier_conv.layers[c_ind].filter_dim,
+                                'strides': model._classifier_conv.layers[c_ind].strides,
+                                'padding': model._classifier_conv.layers[c_ind].padding,
+                                'act_fn': model._classifier_conv.layers[c_ind+1],
+                                'W': model._classifier_conv.layers[c_ind].weights['W'].eval(),
+                                'b': model._classifier_conv.layers[c_ind].weights['b'].eval(),
+                                'layer_type': 'conv'
+                            }
+                            save_dict.append(layer_dict)
+                        elif isinstance(model._classifier_conv.layers[c_ind], PoolLayer):
+                            layer_dict = {
+                                'input_dim': model._classifier_conv.layers[c_ind].input_dim,
+                                'filter_dim': model._classifier_conv.layers[c_ind].filter_dim,
+                                'strides': model._classifier_conv.layers[c_ind].strides,
+                                'layer_type': 'pool'
+                            }
+                            save_dict.append(layer_dict)
+
+                    for c_ind in xrange(0, len(model._classifier_fc.layers)-2, 2):
                         layer_dict = {
-                            'n_filters_in': model._classifier_conv.layers[c_ind].n_filters_in,
-                            'n_filters_out': model._classifier_conv.layers[c_ind].n_filters_out,
-                            'input_dim': model._classifier_conv.layers[c_ind].input_dim,
-                            'filter_dim': model._classifier_conv.layers[c_ind].filter_dim,
-                            'strides': model._classifier_conv.layers[c_ind].strides,
-                            'padding': model._classifier_conv.layers[c_ind].padding,
+                            'input_dim': model._classifier_fc.layers[c_ind].input_dim,
+                            'output_dim': model._classifier_fc.layers[c_ind].output_dim,
+                            'act_fn': model.fc_params['act_fn'][c_ind],
+                            'W': model._classifier_fc.layers[c_ind].weights['w'].eval(),
+                            'b': model._classifier_fc.layers[c_ind].weights['b'].eval(),
+                            'layer_type': 'fc'
                         }
                         save_dict.append(layer_dict)
                     pickle.dump(save_dict, open(os.path.join(options['model_dir'], 'class_dict_%d' % batch_abs_idx), 'wb'))
@@ -251,7 +267,12 @@ val_acc.csv,csv,Validation Accuracy
                     valid_costs = []
                     val_accuracies = []
                     seen_batches = 0
-                    for val_batch, val_label in val_provider:
+                    for j in xrange(int((data_percentage * validation_data.shape[0]) / options['batch_size'])):
+                        val_batch = np.reshape(
+                            validation_data[j:j+options['batch_size'], :],
+                            [options['batch_size'], 28,28,1]
+                        )
+                        val_label = validation_labels[j:j+options['batch_size'], :]
 
                         # Break if 10 batches seen for now
                         if seen_batches == options['valid_batches']:
@@ -261,7 +282,8 @@ val_acc.csv,csv,Validation Accuracy
                             [cost_function, classifier],
                             feed_dict = {
                                 input_batch: val_batch,
-                                label_batch: val_label
+                                label_batch: val_label,
+                                keep_prob: 1.0
                             }
                         )
                         val_cost = val_results[0]
@@ -271,10 +293,10 @@ val_acc.csv,csv,Validation Accuracy
                         val_accuracies.append(np.mean(np.argmax(val_results[1], axis=1) == np.argmax(val_label, axis=1)))
 
                     # Print results
-                    log.info('Validation loss: {:0>15.4f}'.format(
+                    log.info('Mean Validation loss: {:0>15.4f}'.format(
                         float(np.mean(valid_costs))
                     ))
-                    log.info('Validation Accuracy: {:0>15.4f}'.format(
+                    log.info('Mean Validation Accuracy: {:0>15.4f}'.format(
                         np.mean(val_accuracies)
                     ))
 
@@ -286,18 +308,48 @@ val_acc.csv,csv,Validation Accuracy
             log.info('End of epoch {}'.format(epoch_idx + 1))
     # --------------------------------------------------------------------------
 
+        test_costs = []
+        test_accuracies = []
+        for j in xrange(test_data.shape[0] / options['batch_size']):
+            test_batch = np.reshape(
+                test_data[j:j+options['batch_size'], :],
+                [options['batch_size'], 28,28,1]
+            )
+            test_label = test_labels[j:j+options['batch_size'], :]
+
+            test_results = sess.run(
+                [cost_function, classifier],
+                feed_dict = {
+                    input_batch: test_batch,
+                    label_batch: test_label,
+                    keep_prob: 1.0
+                }
+            )
+            test_cost = test_results[0]
+            test_costs.append(test_cost)
+
+            test_accuracies.append(np.mean(np.argmax(test_results[1], axis=1) == np.argmax(test_label, axis=1)))
+
+        # Print results
+        log.info('Test loss: {:0>15.4f}'.format(
+            float(np.mean(test_costs))
+        ))
+        log.info('Test Accuracy: {:0>15.4f}'.format(
+            np.mean(test_accuracies)
+        ))
+
 
 if __name__ == '__main__':
-	parser = argparse.ArgumentParser(description='Vanilla VAE')
+    parser = argparse.ArgumentParser(description='Vanilla VAE')
 
-	parser.add_argument(
-		'experiment',
-		type = str,
-		help = 'Path to config of the experiment'
-	)
+    parser.add_argument(
+        'experiment',
+        type = str,
+        help = 'Path to config of the experiment'
+    )
 
-	args = parser.parse_args()
+    args = parser.parse_args()
 
-	options = config.load_config(args.experiment)
+    options = config.load_config(args.experiment)
 
-	train(options)
+    train(options)

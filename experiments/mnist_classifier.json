@@ -1,0 +1,46 @@
+{
+  "batch_size": 50,
+  "freq_logging": 1,
+  "freq_saving": 1000,
+  "freq_validation": 100,
+  "img_shape": [28, 28],
+  "input_channels": 1,
+  "num_classes": 10,
+  "conv_params": {
+    "n_filters": [32, 64],
+    "kernels": [
+      [5, 5],
+      [5, 5]
+    ],
+    "strides": [
+      [1, 1],
+      [1, 1]
+    ],
+    "act_fn": ["tanh", "tanh"]
+    },
+  "pool_params": {
+    "kernels": [
+      [2, 2],
+      [2, 2]
+    ],
+    "strides": [
+      [2, 2],
+      [2, 2]
+    ]
+    },
+  "fc_params": {
+    "dims": [1024],
+    "act_fn": ["tanh"]
+    },
+  "lr": 0.0001,
+  "model": "cnn_classifier",
+  "model_dir": "./models/mnist_classifier",
+  "data_dir": "MNIST",
+  "data_percentage": 1.0,
+  "dashboard_dir": "/u/kamyar/public_html/results/mnist_classifier",
+  "n_epochs": 20,
+  "random_seed": 12345,
+  "reload": false,
+  "valid_batches": 10,
+  "description": "MNIST Classifier"
+}

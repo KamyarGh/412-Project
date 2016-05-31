@@ -1,0 +1,60 @@
+–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+VAE/GAN:
+~~~~~~~~
+» disc_fixed_conv_vae_mnist:
+	D_to_G: [1, 100]
+	disc_weight: 100
+	Linear classifier on top of fixed conv weights from CNN classifier
+	generator loss: DKL + recon loss + (disc_weight)*(neg. cross entropy)
+	discriminator loss: cross entropy
+
+» disc_fixed_conv_vae_mnist_cont:
+	above continued for another 1200 epochs
+
+» disc_fixed_conv_vae_mnist_feat_space:
+	D_to_G: [1, 100]
+	disc_weight: 100
+	Linear classifier on top of fixed conv weights from CNN classifier
+	generator loss: DKL + recon feat loss + (disc_weight)*(neg. cross entropy)
+	discriminator loss: cross entropy
+
+» disc_fixed_conv_vae_mnist_feat_space_1000:
+	D_to_G: [1, 100]
+	disc_weight: 1000
+	Linear classifier on top of fixed conv weights from CNN classifier
+	generator loss: DKL + recon feat loss + (disc_weight)*(neg. cross entropy)
+	discriminator loss: cross entropy
+
+» disc_fixed_conv_vae_mnist_feat_space_weight_testing:
+	D_to_G: [1, 100]
+	disc_weight: ---- different things ----
+	Linear classifier on top of fixed conv weights from CNN classifier
+	generator loss: DKL + recon feat loss + (disc_weight)*(neg. cross entropy)
+	discriminator loss: cross entropy
+	» Values Tried:
+		1,000,000: 
+–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+GAN:
+~~~~
+» mnist_gan:
+	D_to_G:	[50, 100]
+	logistic regression on top of last pool layer activations
+	discriminator re-initialized every time the mean accuracy of the
+		last 5000 batches is less than 0.95. Once reinitialized, the
+		array of length 5000 used for computing this mean accuracies
+		is reinitialized to an array of 1s.
+
+» mnist_gan_2:
+	D_to_G:	[50, 100]
+	logistic regression on top of last pool layer activations
+	discriminator re-initialized every time we train the discriminator
+
+» mnist_gan_3:
+	D_to_G:	[50, 100]
+	full discriminator being learned
+	discriminator re-initialized every time we train the discriminator
+–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+Things to try for GAN:
+~~~~~~~~~~~~~~~~~~~~~~
+» Try straight normal GAN
+–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––

@@ -1,0 +1,19 @@
+{
+  "batch_size": 128,
+  "freq_logging": 1,
+  "freq_saving": 10,
+  "freq_validation": 50,
+  "img_shape": [48, 48],
+  "latent_dims": 400,
+  "p_layers": [1024],
+  "q_layers": [1024],
+  "lr": 0.001,
+  "model": "vanilla_vae",
+  "model_dir": "",
+  "dashboard_dir": "",
+  "data_dir": "./TFD",
+  "n_epochs": 50,
+  "random_seed": 12345,
+  "reload": false,
+  "valid_batches": 10
+}

@@ -1,6 +1,8 @@
 """
     conv.py
     ~~~~~~~
+    Original Author: Lluis Castrejon
+    Modified By: Kamyar Ghasemipour
 
     Convolutional layer.
 """
@@ -51,8 +53,10 @@ class ConvLayer(object):
         assert len(padding) == 2, 'Wrong padding {}'.format(padding)
 
         # Compute output size
-        output_0 = int(np.floor((input_dim[0] + 2*padding[0] - filter_dim[0])/float(strides[0]))) + 1
-        output_1 = int(np.floor((input_dim[1] + 2*padding[1] - filter_dim[1])/float(strides[1]))) + 1
+        output_0 = int(np.floor((input_dim[0] + 2*padding[0])/float(strides[0]))) + 1
+        output_1 = int(np.floor((input_dim[1] + 2*padding[1])/float(strides[1]))) + 1
+        # output_0 = int(np.floor((input_dim[0] + 2*padding[0] - filter_dim[0])/float(strides[0]))) + 1
+        # output_1 = int(np.floor((input_dim[1] + 2*padding[1] - filter_dim[1])/float(strides[1]))) + 1
         self.output_dim = [output_0, output_1]
 
         self.build()
@@ -101,6 +105,29 @@ class ConvLayer(object):
                 name= '{}_b'.format(self.name)
             )
 
+    def re_init_weights(self, sess):
+        sess.run(
+            self.weights['W'].assign(
+                tf.truncated_normal(
+                    [
+                        self.filter_dim[0],
+                        self.filter_dim[1],
+                        self.n_filters_in,
+                        self.n_filters_out
+                    ],
+                    stddev=0.1,
+                )
+            )
+        )
+        sess.run(
+            self.weights['b'].assign(
+                tf.truncated_normal(
+                    [self.n_filters_out],
+                    stddev=0.1,
+                )
+            )
+        )
+
     def __call__(self, x):
         """
         Forward pass
@@ -109,12 +136,11 @@ class ConvLayer(object):
         x_pad = tf.pad(x, [[0, 0], [self.padding[0], self.padding[0]], [self.padding[1], self.padding[1]], [0, 0]])
 
         # Apply convolution + ReLU
-        return tf.nn.relu(
-            tf.nn.conv2d(
-                x_pad,
-                self.weights['W'],
-                strides=[1, self.strides[0], self.strides[1], 1],
-                padding='SAME' if self.fixed else 'VALID'
-            ) + self.weights['b'],
-            name=self.name
-        )
+        return tf.nn.conv2d(
+            x_pad,
+            self.weights['W'],
+            strides=[1, self.strides[0], self.strides[1], 1],
+            padding='SAME'
+        ) + self.weights['b']
+
+# padding='SAME' if self.fixed else 'VALID'

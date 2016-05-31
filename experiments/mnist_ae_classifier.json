@@ -1,0 +1,33 @@
+{
+  "batch_size": 128,
+  "freq_logging": 1,
+  "freq_saving": 1000,
+  "freq_validation": 500,
+  "img_shape": [28, 28],
+  "input_channels": 1,
+  "latent_dims": 60,
+  "enc_params": {
+    "layer_dims": [64, 60],
+    "act_fn": ["tanh","tanh"]
+  },
+  "dec_params": {
+    "layer_dims": [64, 784],
+    "act_fn": ["tanh", "linear"]
+  },
+  "noise_std": 0.0001,
+  "lr": 0.0005,
+  "model": "ae",
+  "model_dir": "./models/mnist_small_ae_classifier",
+  "dashboard_dir": "/u/kamyar/public_html/results/mnist_small_ae_classifier",
+  "feat_params_path": "./models/mnist_small_ae/enc_dict_21000",
+  "data_dir": "MNIST",
+  "data_percentage": 0.1,
+  "n_epochs": 10,
+  "random_seed": 12345,
+  "reload": false,
+  "valid_batches": 10,
+  "num_classes": 10,
+  "description": "An AE Classifier"
+}
+
+93 - 85

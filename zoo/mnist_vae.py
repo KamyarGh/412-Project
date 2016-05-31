@@ -31,11 +31,10 @@ class VAE(object):
 		self.sigma_clip = sigma_clip
 
 		self.built = False
-		self.sampler_built = False
 		self.name = name
 
 
-	def build_encoder(self, input_var, params=None):
+	def build_encoder(self, input_var):
 		# Build the encoder
 		if len(self.q_layers) > 0:
 			self._encoder = Sequential('vae_encoder')
@@ -45,26 +44,14 @@ class VAE(object):
 
 			self.encoder = self._encoder(input_var)
 
-			self._enc_mean = FullyConnected(self.q_layers[-1], self.latent_dims, mean_std_act_fn, name='enc_mean')
-			self.enc_mean = self._enc_mean(self.encoder)
-			self._enc_log_std_sq = FullyConnected(self.q_layers[-1], self.latent_dims, mean_std_act_fn, name='enc_std')
-			self.enc_log_std_sq = tf.clip_by_value(
-				self._enc_log_std_sq(self.encoder),
-				-self.sigma_clip,
-				self.sigma_clip
-			)
+			self.enc_mean = FullyConnected(self.q_layers[-1], self.latent_dims, mean_std_act_fn, name='enc_mean')
+			self.enc_mean = self.enc_mean(self.encoder)
 
 		else:
 			self.encoder = input_var
 
 			self.enc_mean = FullyConnected(self.input_dims, self.latent_dims, mean_std_act_fn, name='enc_mean')
 			self.enc_mean = self.enc_mean(self.encoder)
-			self.enc_log_std_sq = FullyConnected(self.input_dims, self.latent_dims, mean_std_act_fn, name='enc_std')
-			self.enc_log_std_sq = tf.clip_by_value(
-				self.enc_log_std_sq(self.encoder),
-				-self.sigma_clip,
-				self.sigma_clip
-			)
 
 
 	def build_decoder(self, input_var):
@@ -79,24 +66,12 @@ class VAE(object):
 
 			self._dec_mean = FullyConnected(self.p_layers[-1], self.input_dims, dec_mean_act_fn, name='dec_mean')
 			self.dec_mean = self._dec_mean(self.decoder)
-			self._dec_log_std_sq = FullyConnected(self.p_layers[-1], self.input_dims, mean_std_act_fn, name='dec_std')
-			self.dec_log_std_sq = tf.clip_by_value(
-				self._dec_log_std_sq(self.decoder),
-				-self.sigma_clip,
-				self.sigma_clip
-			)
 
 		else:
 			self.decoder = input_var
 
 			self._dec_mean = FullyConnected(self.latent_dims, self.input_dims, dec_mean_act_fn, name='dec_mean')
 			self.dec_mean = self._dec_mean(self.decoder)
-			self._dec_log_std_sq = FullyConnected(self.latent_dims, self.input_dims, mean_std_act_fn, name='dec_std')
-			self.dec_log_std_sq = tf.clip_by_value(
-				self._dec_log_std_sq(self.decoder),
-				-self.sigma_clip,
-				self.sigma_clip
-			)
 
 
 	def __call__(self, input_batch):
@@ -215,9 +190,6 @@ class VAE(object):
 		return self.cost + self.decay*self.decay_weight
 
 	def build_sampler(self, input_var):
-		if self.sampler_built:
-			return self.sampler
-
 		assert self.built, 'The encoder and the decoder have not been built yet!'
 
 		temp = self._decoder(input_var)
@@ -246,36 +218,4 @@ class VAE(object):
 			self.sampler_mean
 		)
 
-		self.sampler_built = True
 		return self.sampler
-
-
-	# def reload(self, params_path):
-	# 	params = pickle.load(open(params_path, 'rb'))
-
-	# 	for i in range(len(model._encoder.layers)):
- #            layer_dict = {
- #                'input_dim':model._encoder.layers[i].input_dim,
- #                'output_dim':model._encoder.layers[i].output_dim,
- #                'act_fn':model._encoder.layers[i].activation,
- #                'W':model._encoder.layers[i].weights['w'].eval(),
- #                'b':model._encoder.layers[i].weights['b'].eval()
- #            }
- #            save_dict.append(layer_dict)
-
- #        layer_dict = {
- #            'input_dim':model._enc_mean.input_dim,
- #            'output_dim':model._enc_mean.output_dim,
- #            'act_fn':model._enc_mean.activation,
- #            'W':model._enc_mean.weights['w'].eval(),
- #            'b':model._enc_mean.weights['b'].eval()
- #        }
- #        save_dict.append(layer_dict)
-
- #        layer_dict = {
- #            'input_dim':model._enc_log_std_sq.input_dim,
- #            'output_dim':model._enc_log_std_sq.output_dim,
- #            'act_fn':model._enc_log_std_sq.activation,
- #            'W':model._enc_log_std_sq.weights['w'].eval(),
- #            'b':model._enc_log_std_sq.weights['b'].eval()
- #        }

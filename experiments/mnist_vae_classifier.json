@@ -1,0 +1,32 @@
+{
+  "batch_size": 128,
+  "freq_logging": 1,
+  "freq_saving": 1000,
+  "freq_validation": 500,
+  "img_shape": [28, 28],
+  "latent_dims": 60,
+  "p_layers": [60],
+  "q_layers": [60],
+  "sigma_clip": 5.0,
+  "lr": 0.001,
+  "DKL_weight": 1.0,
+  "model": "vanilla_vae",
+  "model_dir": "./models/MNIST_VAE_classifier",
+  "dashboard_dir": "/u/kamyar/public_html/results/MNIST_VAE_classifier",
+  "data_dir": "MNIST",
+  "data_percentage": 0.1,
+  "file_extension": ".npy",
+  "feat_params_path": "./models/MNIST_VAE/vae_dict_21000",
+  "extension": ".npy",
+  "n_epochs": 10,
+  "random_seed": 12345,
+  "reload": false,
+  "valid_batches": 100,
+  "num_classes": 10,
+  "description": "CIFAR Vanilla VAE with Fully Connected Layers"
+}
+97.15 - 91
+10 total: 40%
+100 total: 69%
+
+normal classifier 10%: 79
